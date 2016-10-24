@@ -15,6 +15,8 @@
 		5B0740CF1DBA8F43006DB019 /* Checkers_ARTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0740CE1DBA8F43006DB019 /* Checkers_ARTests.swift */; };
 		5B0740DA1DBA8F43006DB019 /* Checkers_ARUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0740D91DBA8F43006DB019 /* Checkers_ARUITests.swift */; };
 		5B0740E91DBA9787006DB019 /* ar.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5B0740E81DBA9787006DB019 /* ar.jpg */; };
+		5B2DAC6A1DBDB476004CA30F /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */; };
+		5B2DAC6C1DBDB4CB004CA30F /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B2DAC6B1DBDB4CB004CA30F /* opencv2.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,10 @@
 		5B0740D91DBA8F43006DB019 /* Checkers_ARUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checkers_ARUITests.swift; sourceTree = "<group>"; };
 		5B0740DB1DBA8F43006DB019 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5B0740E81DBA9787006DB019 /* ar.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ar.jpg; path = ../../Downloads/ar.jpg; sourceTree = "<group>"; };
+		5B2DAC671DBDB476004CA30F /* Checkers-AR-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Checkers-AR-Bridging-Header.h"; sourceTree = "<group>"; };
+		5B2DAC681DBDB476004CA30F /* OpenCVWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenCVWrapper.h; sourceTree = "<group>"; };
+		5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
+		5B2DAC6B1DBDB4CB004CA30F /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B2DAC6C1DBDB4CB004CA30F /* opencv2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,11 +86,15 @@
 		5B0740AD1DBA8F43006DB019 = {
 			isa = PBXGroup;
 			children = (
+				5B2DAC681DBDB476004CA30F /* OpenCVWrapper.h */,
+				5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */,
 				5B0740E71DBA975C006DB019 /* images */,
 				5B0740B81DBA8F43006DB019 /* Checkers-AR */,
 				5B0740CD1DBA8F43006DB019 /* Checkers-ARTests */,
 				5B0740D81DBA8F43006DB019 /* Checkers-ARUITests */,
 				5B0740B71DBA8F43006DB019 /* Products */,
+				5B2DAC671DBDB476004CA30F /* Checkers-AR-Bridging-Header.h */,
+				5B2DAC6B1DBDB4CB004CA30F /* opencv2.framework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -205,6 +216,7 @@
 					5B0740B51DBA8F43006DB019 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = 8K58Z9Q52N;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
 					5B0740C91DBA8F43006DB019 = {
@@ -274,6 +286,7 @@
 			files = (
 				5B0740BC1DBA8F43006DB019 /* ViewController.swift in Sources */,
 				5B0740BA1DBA8F43006DB019 /* AppDelegate.swift in Sources */,
+				5B2DAC6A1DBDB476004CA30F /* OpenCVWrapper.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,14 +438,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 8K58Z9Q52N;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "Checkers-AR/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "checkers.Checkers-AR";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "Checkers-AR-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -441,14 +461,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 8K58Z9Q52N;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "Checkers-AR/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "checkers.Checkers-AR";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "Checkers-AR-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
