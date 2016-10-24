@@ -13,6 +13,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     let captureSession = AVCaptureSession()
     var captureDevice : AVCaptureDevice?
     var previewLayer : AVCaptureVideoPreviewLayer?
+    var calibrator : OpenCVWrapper = OpenCVWrapper()
+    
     @IBOutlet weak var cameraView: UIView!
     
     override func viewDidLoad() {
@@ -27,7 +29,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
     @IBAction func beginCaptureButtonPressed(_ sender: AnyObject) {
         if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
-            var imagePicker = UIImagePickerController()
+            let imagePicker = UIImagePickerController()
             imagePicker.delegate = self
             imagePicker.sourceType = UIImagePickerControllerSourceType.camera;
             imagePicker.allowsEditing = false
@@ -35,6 +37,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         } else {
             print ("camera not available")
         }
+    }
+
+    
+    @IBAction func beginCalibrationButtonPressed(_ sender: AnyObject) {
+        
     }
 
 }

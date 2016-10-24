@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface OpenCVWrapper : NSObject
+-(void) OpenCVWrapper;
 
 @end
