@@ -47,16 +47,17 @@ class ViewController: UIViewController, UINavigationControllerDelegate {
         captureVideoPreviewLayer?.frame = imageView.bounds
         
         imageView.layer.addSublayer(captureVideoPreviewLayer!)
-        
-        let device = AVCaptureDevice()
-        let input : AVCaptureDeviceInput
-        do {
-            input = try AVCaptureDeviceInput(device: device)
+        let backCamera = AVCaptureDevice.defaultDevice(withMediaType:AVMediaTypeVideo)
+        do
+        {
+            let input = try AVCaptureDeviceInput(device: backCamera)
             session.addInput(input)
-        } catch _ {
-            print ("error")
         }
-        
+        catch
+        {
+            print("can't access camera")
+            return
+        }
         
         
         
