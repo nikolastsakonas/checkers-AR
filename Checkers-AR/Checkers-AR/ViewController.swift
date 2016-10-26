@@ -11,19 +11,43 @@ import AVFoundation
 
 class ViewController: UIViewController, UINavigationControllerDelegate {
     var calibrator : OpenCVWrapper = OpenCVWrapper()
-
+    let ud = UserDefaults.standard
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var cameraView: UIView!
+    
+    @IBOutlet weak var beginGameButton: UIButton!
+    @IBOutlet weak var beginCalibrationButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        calibrator.initializeCalibrator()
+        
+        
+        if let data = ud.object(forKey: "calibrator") as? NSData {
+            calibrator = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! OpenCVWrapper
+            
+            //debugging
+            calibrator.setBloop(3000)
+            ud.set(NSKeyedArchiver.archivedData(withRootObject: calibrator), forKey: "calibrator")
+
+            print("getting bloop")
+            print(calibrator.getBloop())
+            beginCalibrationButton.setTitle("Calibration has been Done", for: .normal)
+            beginCalibrationButton.alpha = 0.2;
+            beginGameButton.alpha = 1.0;
+            
+        }
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func finishCalibration() {
+        calibrator.finishCalibration()
+        //debugging
+        calibrator.setBloop(3000)
+        ud.set(NSKeyedArchiver.archivedData(withRootObject: calibrator), forKey: "calibrator")
     }
     
     func calibrateImage(pickedImage: UIImage) {
@@ -37,7 +61,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate {
     }
 
     @IBAction func beginCalibrationButtonPressed(_ sender: AnyObject) {
-        var session = AVCaptureSession()
+        let session = AVCaptureSession()
         if session.canSetSessionPreset(AVCaptureSessionPresetMedium) {
             session.sessionPreset = AVCaptureSessionPresetMedium
         }
@@ -59,8 +83,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate {
             return
         }
         
-        
-        
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer?.frame = imageView.bounds;
         previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill;
@@ -70,5 +92,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate {
         session.startRunning()
     }
 
+    @IBAction func beginGameButtonPressed(_ sender: AnyObject) {
+        //begin the game
+    }
 }
 

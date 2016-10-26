@@ -19,30 +19,42 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wvq-7y-njK">
-                                <frame key="frameInset" minX="82" minY="571" width="212" height="46"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
-                                <state key="normal" title="Begin Calibration"/>
-                                <connections>
-                                    <action selector="beginCalibrationButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="i6Q-JF-uet"/>
-                                </connections>
-                            </button>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fqL-xD-s4l">
-                                <frame key="frameInset" minX="53" minY="14" width="240" height="236"/>
+                                <frame key="frameInset" minX="16" minY="28" width="343" height="303"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="300" id="57w-3Q-oYy"/>
                                 </constraints>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BOT-kX-alw">
+                                <frame key="frameInset" minX="83" minY="581" width="212" height="46"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Begin Calibration"/>
+                                <connections>
+                                    <action selector="beginCalibrationButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="U3z-Ml-fXr"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" alpha="0.0" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qHh-Nk-abA">
+                                <frame key="frameInset" minX="83" minY="543" width="211" height="30"/>
+                                <state key="normal" title="Start Checkerboard Detection"/>
+                                <connections>
+                                    <action selector="beginGameButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Vd0-CH-7VI"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="BOT-kX-alw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="6Cy-Gg-Knu"/>
+                            <constraint firstItem="BOT-kX-alw" firstAttribute="top" secondItem="qHh-Nk-abA" secondAttribute="bottom" constant="8" id="6Tj-fI-7Ps"/>
+                            <constraint firstItem="qHh-Nk-abA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="7nz-0t-fKM"/>
                             <constraint firstItem="fqL-xD-s4l" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="5" id="NUL-1z-eOA"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="BOT-kX-alw" secondAttribute="bottom" constant="40" id="Vvg-qG-AH4"/>
                             <constraint firstItem="fqL-xD-s4l" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="5" id="ckp-XY-A4g"/>
                             <constraint firstAttribute="trailingMargin" secondItem="fqL-xD-s4l" secondAttribute="trailing" constant="5" id="ra8-DQ-9xI"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="beginCalibrationButton" destination="BOT-kX-alw" id="Oc6-Hi-5p5"/>
+                        <outlet property="beginGameButton" destination="qHh-Nk-abA" id="gfB-RO-2z8"/>
                         <outlet property="imageView" destination="fqL-xD-s4l" id="Ltc-mO-Igg"/>
                     </connections>
                 </viewController>

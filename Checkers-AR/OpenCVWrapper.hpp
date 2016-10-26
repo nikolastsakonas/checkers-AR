@@ -8,8 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-@interface OpenCVWrapper : NSObject
--(void) initializeCalibrator;
+@interface OpenCVWrapper : NSObject <NSCoding>
+-(void) finishCalibration;
 -(UIImage *) makeMatFromImage: (UIImage *) image;
 -(UIImage *) findChessboardCorners:(UIImage *) image1;
+-(int) getBloop;
+
+-(void) setBloop: (int) num;
 @end
