@@ -3,6 +3,7 @@
     <dependencies>
         <deployment version="2048" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,18 +19,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LKq-pL-a5r">
-                                <frame key="frameInset" minX="82" minY="617" width="211" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
-                                <state key="normal" title="Begin Video"/>
-                                <connections>
-                                    <action selector="beginCaptureButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eYV-rc-SPs"/>
-                                </connections>
-                            </button>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RZm-3h-ogz">
-                                <frame key="frameInset" minX="82" minY="51" width="252" height="359"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wvq-7y-njK">
                                 <frame key="frameInset" minX="82" minY="571" width="212" height="46"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -39,13 +28,23 @@
                                     <action selector="beginCalibrationButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="i6Q-JF-uet"/>
                                 </connections>
                             </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fqL-xD-s4l">
+                                <frame key="frameInset" minX="53" minY="14" width="240" height="236"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="300" id="57w-3Q-oYy"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="LKq-pL-a5r" secondAttribute="bottom" constant="20" id="Us1-eg-olM"/>
-                            <constraint firstItem="LKq-pL-a5r" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="iRd-Fr-LV7"/>
+                            <constraint firstItem="fqL-xD-s4l" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="5" id="NUL-1z-eOA"/>
+                            <constraint firstItem="fqL-xD-s4l" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="5" id="ckp-XY-A4g"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="fqL-xD-s4l" secondAttribute="trailing" constant="5" id="ra8-DQ-9xI"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="imageView" destination="fqL-xD-s4l" id="Ltc-mO-Igg"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

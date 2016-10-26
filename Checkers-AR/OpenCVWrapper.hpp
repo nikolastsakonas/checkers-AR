@@ -7,8 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import <UIKit/UIKit.h>
 @interface OpenCVWrapper : NSObject
--(void) OpenCVWrapper;
-
+-(void) initializeCalibrator;
+-(UIImage *) makeMatFromImage: (UIImage *) image;
+-(UIImage *) findChessboardCorners:(UIImage *) image1;
 @end

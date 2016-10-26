@@ -17,6 +17,7 @@
 		5B0740DA1DBA8F43006DB019 /* Checkers_ARUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0740D91DBA8F43006DB019 /* Checkers_ARUITests.swift */; };
 		5B0740E91DBA9787006DB019 /* ar.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5B0740E81DBA9787006DB019 /* ar.jpg */; };
 		5B2DAC6A1DBDB476004CA30F /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */; };
+		5B2DAC6F1DBEAFE8004CA30F /* checkerboard.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 5B2DAC6E1DBEAFE8004CA30F /* checkerboard.JPG */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		5B2DAC671DBDB476004CA30F /* Checkers-AR-Bridging-Header.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "Checkers-AR-Bridging-Header.hpp"; sourceTree = "<group>"; };
 		5B2DAC681DBDB476004CA30F /* OpenCVWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OpenCVWrapper.hpp; sourceTree = "<group>"; };
 		5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
+		5B2DAC6E1DBEAFE8004CA30F /* checkerboard.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = checkerboard.JPG; sourceTree = "<group>"; };
 		746FF067B25DBBECBBC5E94C /* Pods_Checkers_AR.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Checkers_AR.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		93C919E23A40ADF9EC49C93F /* Pods_Checkers_ARTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Checkers_ARTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCE75A839778CB848DCF57DE /* Pods_Checkers_ARUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Checkers_ARUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -167,6 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				5B0740E81DBA9787006DB019 /* ar.jpg */,
+				5B2DAC6E1DBEAFE8004CA30F /* checkerboard.JPG */,
 			);
 			name = images;
 			sourceTree = "<group>";
@@ -286,6 +289,7 @@
 				5B0740E91DBA9787006DB019 /* ar.jpg in Resources */,
 				5B0740C41DBA8F43006DB019 /* LaunchScreen.storyboard in Resources */,
 				5B0740C11DBA8F43006DB019 /* Assets.xcassets in Resources */,
+				5B2DAC6F1DBEAFE8004CA30F /* checkerboard.JPG in Resources */,
 				5B0740BF1DBA8F43006DB019 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

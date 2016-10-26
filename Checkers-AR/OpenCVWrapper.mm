@@ -8,7 +8,7 @@
 
 #import "OpenCVWrapper.hpp"
 #include <opencv2/opencv.hpp>
-
+#import <opencv2/imgcodecs/ios.h>
 //unfortunately need to do this to hide all opencv calls from swift
 //otherwise I would put these in .hpp
 @implementation OpenCVWrapper {
@@ -23,34 +23,51 @@
     cv::Point2d principalPoint;
 }
 
+//this will come in handy
+-(UIImage *) makeMatFromImage: (UIImage *) image {
+    cv::Mat imageMat;
+    UIImageToMat(image, imageMat);
+    //can do all sorts of stuff with the MAT
+    //and then convert it back to UIImage for use in swift
+    return MatToUIImage(imageMat);
+}
+
 //no argument constructor
--(void) OpenCVWrapper {
+-(void) initializeCalibrator {
     cameraMatrix = cv::Mat::eye(3, 3, CV_64F);
     distCoeffs = cv::Mat::zeros(4, 1, CV_64F);
     //could change this later
     int squareSize = 1;
-    for( int i = 0; i < 8; ++i )
-        for( int j = 0; j < 8; ++j )
+    objectPoints.push_back(std::vector <cv::Point3f> ());
+    for( int i = 0; i < 6; ++i )
+        for( int j = 0; j < 6; ++j )
             objectPoints[0].push_back(cv::Point3f(double( j*squareSize ), double( i*squareSize ), 0));
-    boardSize = cv::Size(8,8);
-    
+    std::cout << "\n\n\nsetting board size!@!@$@$!\n\n\n" << std::endl;
+    boardSize = cv::Size(6,6);
 }
 
--(bool) findChessboardCorners:(cv::Mat) image  {
-    std::vector<cv::Point2f> corners;
+-(UIImage*) findChessboardCorners:(UIImage*) image1 {
+    cv::Mat image;
+    UIImageToMat(image1, image);
     
+    std::vector<cv::Point2f> corners;
+    std::cout << "board size is " << boardSize;
     bool found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
     
     if(found) {
+        std::cout << "\nimage found\n" << std::endl;
         imageSize = image.size();
         cv::Mat tempView;
         cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
-        cornerSubPix( tempView, corners, cv::Size(4,3),
-                     cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1 ));
+        cornerSubPix( tempView, corners, cv::Size(3,3),
+                     cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
         
         imagePoints.push_back(corners);
     }
-    return true;
+
+    cv::drawChessboardCorners(image, boardSize, corners, true);
+
+    return MatToUIImage(image);
 }
 
 //this will store all of the final calibration values

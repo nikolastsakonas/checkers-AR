@@ -9,39 +9,64 @@
 import UIKit
 import AVFoundation
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    let captureSession = AVCaptureSession()
-    var captureDevice : AVCaptureDevice?
-    var previewLayer : AVCaptureVideoPreviewLayer?
+class ViewController: UIViewController, UINavigationControllerDelegate {
     var calibrator : OpenCVWrapper = OpenCVWrapper()
-    
+
+    @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var cameraView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        calibrator.initializeCalibrator()
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    @IBAction func beginCaptureButtonPressed(_ sender: AnyObject) {
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.sourceType = UIImagePickerControllerSourceType.camera;
-            imagePicker.allowsEditing = false
-            self.present(imagePicker, animated: true, completion: nil)
-        } else {
-            print ("camera not available")
-        }
+    
+    func calibrateImage(pickedImage: UIImage) {
+        print("\ncalibrating image\n")
+        var img: UIImage
+        img = calibrator.findChessboardCorners(pickedImage)
+        
+        //display calibrated image
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = img
     }
 
-    
     @IBAction func beginCalibrationButtonPressed(_ sender: AnyObject) {
+        var session = AVCaptureSession()
+        if session.canSetSessionPreset(AVCaptureSessionPresetMedium) {
+            session.sessionPreset = AVCaptureSessionPresetMedium
+        }
+
+        let captureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
         
+        captureVideoPreviewLayer?.frame = imageView.bounds
+        
+        imageView.layer.addSublayer(captureVideoPreviewLayer!)
+        
+        let device = AVCaptureDevice()
+        let input : AVCaptureDeviceInput
+        do {
+            input = try AVCaptureDeviceInput(device: device)
+            session.addInput(input)
+        } catch _ {
+            print ("error")
+        }
+        
+        
+        
+        
+        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer?.frame = imageView.bounds;
+        previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        
+        imageView.layer.addSublayer(previewLayer!)
+        
+        session.startRunning()
     }
 
 }
