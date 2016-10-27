@@ -22,7 +22,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @IBOutlet weak var beginCalibrationButton: UIButton!
     var calibratePressed : Bool = false
     @IBOutlet weak var restartCalibrationButton: UIButton!
-    let session = AVCaptureSession()
+    var session = AVCaptureSession()
     
     @IBOutlet weak var successLabel: UILabel!
     override func viewDidLoad() {
@@ -123,12 +123,32 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @IBAction func beginCalibrationButtonPressed(_ sender: AnyObject) {
         //reset class
         calibrator = OpenCVWrapper()
+        imageView.alpha = 1.0
         beginGameButton.alpha = 0.0
         beginCalibrationButton.alpha = 0.0
+        calibrateImageButton.isEnabled = true
+        totalCalibrated = 0
+        leftToCalibrateLabel.text = "10 Images Left To Calibrate"
+        
+        
+        //don't need to reinitialize camera if we've already used it
+        if(session.inputs.isEmpty) {
+            startCameraSession()
+        } else {
+            session.startRunning()
+        }
+        
+        //show calibration labels/buttons
+        calibrationInstructionsLabel.alpha = 1.0
+        leftToCalibrateLabel.alpha = 1.0
+        calibrateImageButton.alpha = 1.0
+    }
+    
+    func startCameraSession() {
         if session.canSetSessionPreset(AVCaptureSessionPresetMedium) {
             session.sessionPreset = AVCaptureSessionPresetMedium
         }
-
+        
         let backCamera = AVCaptureDevice.defaultDevice(withMediaType:AVMediaTypeVideo)
         do
         {
@@ -152,15 +172,10 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         output.setSampleBufferDelegate(self, queue: queue)
         output.alwaysDiscardsLateVideoFrames = true
         output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as NSString: NSNumber(value: kCVPixelFormatType_32BGRA)]
-
+        
         session.addOutput(output)
         
         session.startRunning()
-        
-        //show calibration labels/buttons
-        calibrationInstructionsLabel.alpha = 1.0
-        leftToCalibrateLabel.alpha = 1.0
-        calibrateImageButton.alpha = 1.0
     }
 
     @IBAction func beginGameButtonPressed(_ sender: AnyObject) {
