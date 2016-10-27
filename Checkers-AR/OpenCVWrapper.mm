@@ -64,6 +64,13 @@
     cv::Mat image;
     UIImageToMat(image1, image);
     
+    //need to rotate image 90 degrees because
+    //for some reason its sideways...
+    cv::Point2f src_center(image.cols/2.0F, image.rows/2.0F);
+    cv::Mat Rot = getRotationMatrix2D(src_center, -90.0, 1.0);
+    cv::Mat dst;
+    cv::warpAffine(image, image, Rot, image.size());
+    
     std::vector<cv::Point2f> corners;
     std::cout << "board size is " << boardSize;
     bool found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
@@ -129,6 +136,8 @@
 
 //this will store all of the final calibration values
 -(void) finishCalibration {
+    objectPoints.resize(imagePoints.size(),objectPoints[0]);
+    
     cv::calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix,
                         distCoeffs, rvecs, tvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
     
