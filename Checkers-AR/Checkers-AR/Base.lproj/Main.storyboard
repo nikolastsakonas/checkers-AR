@@ -33,14 +33,6 @@
                                     <action selector="beginCalibrationButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="U3z-Ml-fXr"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" alpha="0.0" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4XC-gh-OMn">
-                                <frame key="frameInset" minX="81" minY="613" width="250" height="46"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
-                                <state key="normal" title="Restart Calibration"/>
-                                <connections>
-                                    <action selector="restartCalibrationButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7yE-LF-HUF"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" alpha="0.0" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qHh-Nk-abA">
                                 <frame key="frameInset" minX="83" minY="543" width="211" height="30"/>
                                 <state key="normal" title="Start Checkerboard Detection"/>
@@ -76,7 +68,7 @@
                             <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cVf-Kc-z0p">
                                 <frame key="frameInset" minX="31" minY="44" width="315" height="419"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="450" id="N0h-FW-OMo"/>
+                                    <constraint firstAttribute="height" constant="550" id="N0h-FW-OMo"/>
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Calibration Complete!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AQI-68-I7W">
@@ -96,16 +88,13 @@
                             <constraint firstItem="AQI-68-I7W" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="CI5-33-LxL"/>
                             <constraint firstItem="tdc-AS-Fqi" firstAttribute="top" secondItem="Ge1-U3-Uc1" secondAttribute="bottom" constant="10" id="JKa-hJ-muT"/>
                             <constraint firstItem="qHh-Nk-abA" firstAttribute="top" secondItem="8gk-Ai-Eo2" secondAttribute="bottom" constant="100" id="KjY-Jn-x20"/>
-                            <constraint firstItem="4XC-gh-OMn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MxO-UY-Rdw"/>
                             <constraint firstItem="fqL-xD-s4l" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="5" id="NUL-1z-eOA"/>
                             <constraint firstItem="Ge1-U3-Uc1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OU0-Bh-ubf"/>
-                            <constraint firstItem="4XC-gh-OMn" firstAttribute="top" secondItem="qHh-Nk-abA" secondAttribute="bottom" constant="8" id="P9p-fS-a1G"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="BOT-kX-alw" secondAttribute="bottom" constant="40" id="Vvg-qG-AH4"/>
                             <constraint firstItem="8gk-Ai-Eo2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="117" id="Z4p-4M-fp0"/>
-                            <constraint firstItem="fqL-xD-s4l" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="5" id="ckp-XY-A4g"/>
+                            <constraint firstItem="fqL-xD-s4l" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="25" id="ckp-XY-A4g"/>
                             <constraint firstItem="cVf-Kc-z0p" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="24" id="fqf-UK-N59"/>
                             <constraint firstItem="AQI-68-I7W" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="hax-We-23M"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="4XC-gh-OMn" secondAttribute="bottom" constant="40" id="ioG-71-8kC"/>
                             <constraint firstAttribute="trailingMargin" secondItem="8gk-Ai-Eo2" secondAttribute="trailing" constant="118" id="qIG-54-Urw"/>
                             <constraint firstAttribute="trailingMargin" secondItem="fqL-xD-s4l" secondAttribute="trailing" constant="5" id="ra8-DQ-9xI"/>
                             <constraint firstItem="cVf-Kc-z0p" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="5" id="t3K-EK-AJd"/>
@@ -120,7 +109,6 @@
                         <outlet property="imageView" destination="fqL-xD-s4l" id="Ltc-mO-Igg"/>
                         <outlet property="leftToCalibrateLabel" destination="tdc-AS-Fqi" id="9tI-AF-DBh"/>
                         <outlet property="previewView" destination="cVf-Kc-z0p" id="R4F-DL-yb7"/>
-                        <outlet property="restartCalibrationButton" destination="4XC-gh-OMn" id="oPi-2r-OeE"/>
                         <outlet property="successLabel" destination="AQI-68-I7W" id="i9x-vG-RTZ"/>
                     </connections>
                 </viewController>

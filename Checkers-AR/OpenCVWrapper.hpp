@@ -11,7 +11,7 @@
 @interface OpenCVWrapper : NSObject <NSCoding>
 -(void) finishCalibration;
 -(UIImage *) makeMatFromImage: (UIImage *) image;
--(UIImage *) findChessboardCorners:(UIImage *) image1;
+-(UIImage *) findChessboardCorners:(UIImage *) image1 :(bool) calibrating;
 -(int) getBloop;
 -(void) setBloop: (int) num;
 @end

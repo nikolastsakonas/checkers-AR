@@ -47,20 +47,20 @@
 {
     self = [super init];
     if (self) {
-        std::cout << "going!!!!!" << std::endl;
         int squareSize = 1;
         objectPoints.push_back(std::vector <cv::Point3f> ());
-        for( int i = 0; i < 6; ++i )
-            for( int j = 0; j < 6; ++j )
+        for( int i = 0; i < 7; ++i )
+            for( int j = 0; j < 7; ++j )
                 objectPoints[0].push_back(cv::Point3f(double( j*squareSize ), double( i*squareSize ), 0));
-        boardSize = cv::Size(6,6);
+        boardSize = cv::Size(7,7);
+        
         cameraMatrix = cv::Mat::eye(3, 3, CV_64F);
         distCoeffs = cv::Mat::zeros(4, 1, CV_64F);
     }
     return self;
 }
 
--(UIImage*) findChessboardCorners:(UIImage*) image1 {
+-(UIImage*) findChessboardCorners:(UIImage*) image1 :(bool) calibrating {
     cv::Mat image;
     UIImageToMat(image1, image);
     
@@ -72,21 +72,29 @@
     cv::warpAffine(image, image, Rot, image.size());
     
     std::vector<cv::Point2f> corners;
-    std::cout << "board size is " << boardSize;
-    bool found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
+    bool found = false;
+    if(calibrating)
+        found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
+    else
+        found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_FAST_CHECK);
     
     if(found) {
         std::cout << "\nimage found\n" << std::endl;
         imageSize = image.size();
-        cv::Mat tempView;
-        cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
-        cornerSubPix( tempView, corners, cv::Size(3,3),
-                     cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
-        
-        imagePoints.push_back(corners);
+        if(calibrating) {
+            cv::Mat tempView;
+            cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
+            cornerSubPix( tempView, corners, cv::Size(3,3),
+                         cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
+            
+            imagePoints.push_back(corners);
+        }
+
+
+        cv::drawChessboardCorners(image, boardSize, corners, true);
     }
 
-    cv::drawChessboardCorners(image, boardSize, corners, true);
+    
 
     return MatToUIImage(image);
 }

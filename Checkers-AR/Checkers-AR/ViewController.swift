@@ -21,8 +21,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @IBOutlet weak var beginGameButton: UIButton!
     @IBOutlet weak var beginCalibrationButton: UIButton!
     var calibratePressed : Bool = false
-    @IBOutlet weak var restartCalibrationButton: UIButton!
     var session = AVCaptureSession()
+    var playing = false
     
     @IBOutlet weak var successLabel: UILabel!
     override func viewDidLoad() {
@@ -92,7 +92,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         //disable button while calibrating
         calibrateImageButton.isEnabled = false;
         var img: UIImage
-        img = calibrator.findChessboardCorners(pickedImage)
+        img = calibrator.findChessboardCorners(pickedImage, true)
         
         //display calibrated image over camera view
         previewView.alpha = 1.0
@@ -161,11 +161,14 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             return
         }
         
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer?.frame = imageView.bounds;
-        previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        
-        imageView.layer.addSublayer(previewLayer!)
+        if(!playing) {
+            let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+            previewLayer?.frame = imageView.bounds;
+            previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    
+            imageView.layer.addSublayer(previewLayer!)
+        }
+
         
         let output = AVCaptureVideoDataOutput()
         let queue = DispatchQueue(label: "queue")
@@ -179,14 +182,21 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     }
 
     @IBAction func beginGameButtonPressed(_ sender: AnyObject) {
-        //begin the game
-        //calibrator.findChessboardCorners(<#T##image1: UIImage!##UIImage!#>)
+        //don't need to reinitialize camera if we've already used it
+        playing = true;
+        if(session.inputs.isEmpty) {
+            startCameraSession()
+        } else {
+            session.startRunning()
+        }
     }
+
     @IBAction func calibrateImageButtonPressed(_ sender: AnyObject) {
         calibratePressed = true
     }
     
     //delegate for when frame is captured
+    //override
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         if(calibratePressed) {
             calibratePressed = false
@@ -195,9 +205,19 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
                 self.calibrateImage(pickedImage: img)
             }
         }
+        if(playing) {
+            let img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
+            DispatchQueue.main.async {
+                let newImage : UIImage = self.calibrator.findChessboardCorners(img, false)
+                self.imageView.alpha = 1.0
+                self.imageView.contentMode = .scaleAspectFit
+                self.imageView.image = newImage
+            }
+        }
     }
     
     //courtesy of apple documentation
+    //https://developer.apple.com/library/content/qa/qa1702/_index.html
     func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage {
         // Get a CMSampleBuffer's Core Video image buffer for the media data
         let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
@@ -229,11 +249,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         
         return image
     }
-    
-    @IBAction func restartCalibrationButtonPressed(_ sender: AnyObject) {
-        
-    }
-    
 
 }
 
