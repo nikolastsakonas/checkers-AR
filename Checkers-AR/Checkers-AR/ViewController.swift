@@ -23,6 +23,9 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     var calibratePressed : Bool = false
     var session = AVCaptureSession()
     var playing = false
+    var rotated = false
+    var previewLayer = AVCaptureVideoPreviewLayer()
+    var playingLayer = CALayer()
     
     @IBOutlet weak var successLabel: UILabel!
     override func viewDidLoad() {
@@ -35,7 +38,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             //debugging
             calibrator.setBloop(3000)
             
-            //ud.set(NSKeyedArchiver.archivedData(withRootObject: calibrator), forKey: "calibrator")
+            previewView.transform = CGAffineTransform(rotationAngle: 90.0 * 3.14 / 180.0)
 
             print("getting bloop")
             print(calibrator.getBloop())
@@ -77,13 +80,12 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         calibrationInstructionsLabel.alpha = 0.0
         session.stopRunning()
         
-        //hacky I know... just want to hide the view.
-        imageView.alpha = 0.0
-        
         successLabel.alpha = 1.0
         UIView.animate(withDuration: 2.70, animations: {
             self.successLabel.alpha = 0.0
         })
+        
+        clearLayers()
         
     }
     
@@ -98,8 +100,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         previewView.alpha = 1.0
         previewView.contentMode = .scaleAspectFit
         previewView.image = img
+        
         //have to rotate image 90 degrees...
-        //previewView.transform = CGAffineTransform(rotationAngle: (90.0 * CGFloat(M_PI)) / 180.0)
     
         //fade away calibrated image so user can take another image
         UIView.animate(withDuration: 2.70, animations: {
@@ -120,10 +122,21 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         }
     }
 
+    func setPreviewLayer() {
+        clearLayers()
+        previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer.frame = imageView.bounds;
+        previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+
+        imageView.layer.addSublayer(previewLayer)
+    }
+    
     @IBAction func beginCalibrationButtonPressed(_ sender: AnyObject) {
         //reset class
         calibrator = OpenCVWrapper()
-        imageView.alpha = 1.0
+        session.stopRunning()
+        playing = false
+        imageView.image = nil
         beginGameButton.alpha = 0.0
         beginCalibrationButton.alpha = 0.0
         calibrateImageButton.isEnabled = true
@@ -135,6 +148,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         if(session.inputs.isEmpty) {
             startCameraSession()
         } else {
+            setPreviewLayer()
             session.startRunning()
         }
         
@@ -161,12 +175,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             return
         }
         
-        if(!playing) {
-            let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-            previewLayer?.frame = imageView.bounds;
-            previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    
-            imageView.layer.addSublayer(previewLayer!)
+        if(!playing && (imageView.layer.sublayers) == nil) {
+            setPreviewLayer()
         }
 
         
@@ -175,18 +185,32 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         output.setSampleBufferDelegate(self, queue: queue)
         output.alwaysDiscardsLateVideoFrames = true
         output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as NSString: NSNumber(value: kCVPixelFormatType_32BGRA)]
-        
+
         session.addOutput(output)
-        
+
         session.startRunning()
     }
 
+    func clearLayers() {
+        imageView.layer.sublayers = nil
+    }
+    
+    func setPlayingLayer() {
+        clearLayers()
+        playingLayer.frame = self.imageView.bounds
+        playingLayer.contentsGravity = kCAGravityResizeAspect
+        playingLayer.transform = CATransform3DMakeRotation(90.0 * 3.14 / 180.0, 0.0, 0.0, 1.0);
+        self.imageView.layer.addSublayer(playingLayer)
+    }
+    
     @IBAction func beginGameButtonPressed(_ sender: AnyObject) {
         //don't need to reinitialize camera if we've already used it
         playing = true;
         if(session.inputs.isEmpty) {
+            setPlayingLayer()
             startCameraSession()
         } else {
+            setPlayingLayer()
             session.startRunning()
         }
     }
@@ -194,6 +218,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @IBAction func calibrateImageButtonPressed(_ sender: AnyObject) {
         calibratePressed = true
     }
+    
     
     //delegate for when frame is captured
     //override
@@ -206,12 +231,19 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             }
         }
         if(playing) {
+            print("here")
             let img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
             DispatchQueue.main.async {
-                let newImage : UIImage = self.calibrator.findChessboardCorners(img, false)
-                self.imageView.alpha = 1.0
-                self.imageView.contentMode = .scaleAspectFit
-                self.imageView.image = newImage
+                let newImage : UIImage;
+                if(!self.calibrator.checkWait()) {
+                    newImage = self.calibrator.findChessboardCorners(img, false)
+                } else {
+                    newImage = img
+                }
+
+                self.playingLayer.contents = newImage.cgImage;
+//                self.playingLayer.backgroundColor = UIColor(colorLiteralRed: 1, green: 0, blue: 0, alpha: 1).cgColor
+                
             }
         }
     }
@@ -245,7 +277,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         CVPixelBufferUnlockBaseAddress(imageBuffer!,CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)));
         
         // Create an image object from the Quartz image
-        let image = UIImage(cgImage: quartzImage!)
+        let image = UIImage(cgImage: quartzImage!, scale: 1.0, orientation: UIImageOrientation.up)
         
         return image
     }

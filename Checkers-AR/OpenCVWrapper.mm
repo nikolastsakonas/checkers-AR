@@ -25,10 +25,21 @@
     double fx, fy, cx, cy;
     double persMat[16];
     double d0, d1, d2, d3;
+    bool wait;
+    clock_t prevTimeStamp;
 }
 
 -(int) getBloop {
     return bloop;
+}
+
+-(bool) checkWait {
+    if(wait) wait = ![self checkTimeStamp];
+    return wait;
+}
+
+-(bool) checkTimeStamp {
+    return (clock() - prevTimeStamp > 20*1e-3*CLOCKS_PER_SEC);
 }
 
 -(void) setBloop: (int) num {
@@ -49,13 +60,15 @@
     if (self) {
         int squareSize = 1;
         objectPoints.push_back(std::vector <cv::Point3f> ());
-        for( int i = 0; i < 7; ++i )
-            for( int j = 0; j < 7; ++j )
+        for( int i = 6; i >= 0; --i )
+            for( int j = 6; j >= 0; --j )
                 objectPoints[0].push_back(cv::Point3f(double( j*squareSize ), double( i*squareSize ), 0));
         boardSize = cv::Size(7,7);
         
         cameraMatrix = cv::Mat::eye(3, 3, CV_64F);
         distCoeffs = cv::Mat::zeros(4, 1, CV_64F);
+        wait = false;
+        prevTimeStamp = 0;
     }
     return self;
 }
@@ -63,24 +76,31 @@
 -(UIImage*) findChessboardCorners:(UIImage*) image1 :(bool) calibrating {
     cv::Mat image;
     UIImageToMat(image1, image);
-    
+    std::cout << image.size() << std::endl;
     //need to rotate image 90 degrees because
     //for some reason its sideways...
     cv::Point2f src_center(image.cols/2.0F, image.rows/2.0F);
     cv::Mat Rot = getRotationMatrix2D(src_center, -90.0, 1.0);
-    cv::Mat dst;
-    cv::warpAffine(image, image, Rot, image.size());
+    cv::Mat Rot2 = getRotationMatrix2D(src_center, 90.0, 1.0);
+//    cv::warpAffine(image, image, Rot, image.size());
     
     std::vector<cv::Point2f> corners;
     bool found = false;
-    if(calibrating)
+    if(calibrating) {
         found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
-    else
-        found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_FAST_CHECK);
+    }
+    else {
+        found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_FAST_CHECK + CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
+        if(!found) {
+            wait = true;
+            prevTimeStamp = clock();
+        }
+    }
     
     if(found) {
         std::cout << "\nimage found\n" << std::endl;
         imageSize = image.size();
+        std::cout << imageSize;
         if(calibrating) {
             cv::Mat tempView;
             cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
@@ -92,10 +112,16 @@
 
 
         cv::drawChessboardCorners(image, boardSize, corners, true);
+        cv::circle(image, cv::Point(corners[0].x,corners[0].y), 20, cv::Scalar(1,0,0,1));
+        cv::circle(image, cv::Point(corners[0].x + 25.0, corners[0].y), 20, cv::Scalar(1,0,0,1));
+        cv::circle(image, cv::Point(corners[corners.size() - 1].x,corners[corners.size() - 1].y), 50, cv::Scalar(1,0,0,1));
+        
+
     }
 
     
-
+//    cv::warpAffine(image, image, Rot2, image.size());
+    
     return MatToUIImage(image);
 }
 

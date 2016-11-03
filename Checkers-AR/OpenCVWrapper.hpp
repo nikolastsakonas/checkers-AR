@@ -13,5 +13,6 @@
 -(UIImage *) makeMatFromImage: (UIImage *) image;
 -(UIImage *) findChessboardCorners:(UIImage *) image1 :(bool) calibrating;
 -(int) getBloop;
+-(bool) checkWait;
 -(void) setBloop: (int) num;
 @end
