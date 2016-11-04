@@ -31,20 +31,22 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+            beginGameButton.layer.cornerRadius = 5
+            calibrateImageButton.layer.cornerRadius = 5
+            beginCalibrationButton.layer.cornerRadius = 5
+        
+            previewView.transform = CGAffineTransform(rotationAngle: 90.0 * 3.14 / 180.0)
         
             if let data = ud.object(forKey: "calibrator") as? NSData {
             calibrator = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! OpenCVWrapper
             
             //debugging
             calibrator.setBloop(3000)
-            
-            previewView.transform = CGAffineTransform(rotationAngle: 90.0 * 3.14 / 180.0)
 
             print("getting bloop")
             print(calibrator.getBloop())
                 
             removeCalibrationPrompts()
-            
         }
     }
 
@@ -98,7 +100,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         
         //display calibrated image over camera view
         previewView.alpha = 1.0
-        previewView.contentMode = .scaleAspectFit
+        previewView.contentMode = .scaleAspectFill
         previewView.image = img
         
         //have to rotate image 90 degrees...
@@ -197,9 +199,9 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     
     func setPlayingLayer() {
         clearLayers()
+        playingLayer.transform = CATransform3DMakeRotation(90.0 * 3.14 / 180.0, 0.0, 0.0, 1.0);
         playingLayer.frame = self.imageView.bounds
         playingLayer.contentsGravity = kCAGravityResizeAspect
-        playingLayer.transform = CATransform3DMakeRotation(90.0 * 3.14 / 180.0, 0.0, 0.0, 1.0);
         self.imageView.layer.addSublayer(playingLayer)
     }
     
@@ -242,8 +244,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
                 }
 
                 self.playingLayer.contents = newImage.cgImage;
-//                self.playingLayer.backgroundColor = UIColor(colorLiteralRed: 1, green: 0, blue: 0, alpha: 1).cgColor
-                
             }
         }
     }
