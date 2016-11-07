@@ -76,12 +76,12 @@
 -(UIImage*) findChessboardCorners:(UIImage*) image1 :(bool) calibrating {
     cv::Mat image;
     UIImageToMat(image1, image);
-    std::cout << image.size() << std::endl;
+    cv::cvtColor(image, image, CV_RGB2BGR);
     //need to rotate image 90 degrees because
     //for some reason its sideways...
-    cv::Point2f src_center(image.cols/2.0F, image.rows/2.0F);
-    cv::Mat Rot = getRotationMatrix2D(src_center, -90.0, 1.0);
-    cv::Mat Rot2 = getRotationMatrix2D(src_center, 90.0, 1.0);
+//    cv::Point2f src_center(image.cols/2.0F, image.rows/2.0F);
+//    cv::Mat Rot = getRotationMatrix2D(src_center, -90.0, 1.0);
+//    cv::Mat Rot2 = getRotationMatrix2D(src_center, 90.0, 1.0);
 //    cv::warpAffine(image, image, Rot, image.size());
     
     std::vector<cv::Point2f> corners;
@@ -98,9 +98,7 @@
     }
     
     if(found) {
-        std::cout << "\nimage found\n" << std::endl;
         imageSize = image.size();
-        std::cout << imageSize;
         if(calibrating) {
             cv::Mat tempView;
             cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
@@ -121,7 +119,7 @@
 
     
 //    cv::warpAffine(image, image, Rot2, image.size());
-    
+    cvtColor(image, image, CV_BGR2RGB);
     return MatToUIImage(image);
 }
 
@@ -129,10 +127,6 @@
 
 -(void) createPerspectiveMatrix {
     double near = 0.05f, far = 1000.0;
-    fx = cameraMatrix.at<double>(0,0);
-    fy = cameraMatrix.at<double>(1,1);
-    cx = principalPoint.x;
-    cy = principalPoint.y;
     
     
     // Matrix used for perspective
@@ -158,6 +152,8 @@
     cameraMatrix.at<double>(1,1) = fy;
     cameraMatrix.at<double>(0,2) = cx;
     cameraMatrix.at<double>(1,2) = cy;
+    std::cout << "Camera Matrix:" << std::endl;
+    std::cout << cameraMatrix << std::endl;
 }
 
 //rebuild camera matrix
@@ -166,6 +162,8 @@
     distCoeffs.at<double>(1,0) = d1;
     distCoeffs.at<double>(2,0) = d2;
     distCoeffs.at<double>(3,0) = d3;
+    std::cout << "Dist Matrix:" << std::endl;
+    std::cout << distCoeffs << std::endl;
 }
 
 //this will store all of the final calibration values
@@ -175,8 +173,13 @@
     cv::calibrateCamera(objectPoints, imagePoints, imageSize, cameraMatrix,
                         distCoeffs, rvecs, tvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
     
-    cv::calibrationMatrixValues(self->cameraMatrix, imageSize, 0.0f, 0.0f, fovx, fovy, focalLength, principalPoint, aspectRatio);
-
+    cv::calibrationMatrixValues(cameraMatrix, imageSize, 0.0f, 0.0f, fovx, fovy, focalLength, principalPoint, aspectRatio);
+    
+    fx = cameraMatrix.at<double>(0,0);
+    fy = cameraMatrix.at<double>(1,1);
+    cx = principalPoint.x;
+    cy = principalPoint.y;
+    
     [self createPerspectiveMatrix];
 }
 
@@ -212,16 +215,22 @@
     fy = [aDecoder decodeDoubleForKey:@"fy"];
     cx = [aDecoder decodeDoubleForKey:@"cx"];
     cy = [aDecoder decodeDoubleForKey:@"cy"];
-    
+
     //distCoef
-    d0 = [aDecoder decodeDoubleForKey:@"fx"];
-    d1 = [aDecoder decodeDoubleForKey:@"fy"];
-    d2 = [aDecoder decodeDoubleForKey:@"cx"];
-    d3 = [aDecoder decodeDoubleForKey:@"cy"];
+    d0 = [aDecoder decodeDoubleForKey:@"d0"];
+    d1 = [aDecoder decodeDoubleForKey:@"d1"];
+    d2 = [aDecoder decodeDoubleForKey:@"d2"];
+    d3 = [aDecoder decodeDoubleForKey:@"d3"];
     
     [self createPerspectiveMatrix];
     [self createCameraMatrix];
     [self createDistMatrix];
     return self;
+}
+
+-(OpenGLWrapper *) initializeOpenGL {
+    OpenGLWrapper *opengl = [[OpenGLWrapper alloc] init];
+    [opengl initOpenGL:(void*)self];
+    return opengl;
 }
 @end

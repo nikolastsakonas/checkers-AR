@@ -3,3 +3,4 @@
 //
 
 #import "OpenCVWrapper.hpp"
+#import "OpenGLWrapper.hpp"

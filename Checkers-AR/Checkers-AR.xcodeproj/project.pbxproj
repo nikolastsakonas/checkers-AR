@@ -18,6 +18,7 @@
 		5B0740E91DBA9787006DB019 /* ar.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5B0740E81DBA9787006DB019 /* ar.jpg */; };
 		5B2DAC6A1DBDB476004CA30F /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */; };
 		5B2DAC6F1DBEAFE8004CA30F /* checkerboard.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 5B2DAC6E1DBEAFE8004CA30F /* checkerboard.JPG */; };
+		5BC7E9301DCFE6EF00560E06 /* OpenGLWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5BC7E92F1DCFE6EF00560E06 /* OpenGLWrapper.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,8 @@
 		5B2DAC681DBDB476004CA30F /* OpenCVWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OpenCVWrapper.hpp; sourceTree = "<group>"; };
 		5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
 		5B2DAC6E1DBEAFE8004CA30F /* checkerboard.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = checkerboard.JPG; sourceTree = "<group>"; };
+		5BC7E92E1DCFE6EF00560E06 /* OpenGLWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OpenGLWrapper.hpp; sourceTree = "<group>"; };
+		5BC7E92F1DCFE6EF00560E06 /* OpenGLWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLWrapper.mm; sourceTree = "<group>"; };
 		746FF067B25DBBECBBC5E94C /* Pods_Checkers_AR.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Checkers_AR.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		93C919E23A40ADF9EC49C93F /* Pods_Checkers_ARTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Checkers_ARTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCE75A839778CB848DCF57DE /* Pods_Checkers_ARUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Checkers_ARUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,6 +114,8 @@
 		5B0740AD1DBA8F43006DB019 = {
 			isa = PBXGroup;
 			children = (
+				5BC7E92E1DCFE6EF00560E06 /* OpenGLWrapper.hpp */,
+				5BC7E92F1DCFE6EF00560E06 /* OpenGLWrapper.mm */,
 				5B2DAC681DBDB476004CA30F /* OpenCVWrapper.hpp */,
 				5B2DAC691DBDB476004CA30F /* OpenCVWrapper.mm */,
 				5B0740E71DBA975C006DB019 /* images */,
@@ -364,6 +369,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B0740BC1DBA8F43006DB019 /* ViewController.swift in Sources */,
+				5BC7E9301DCFE6EF00560E06 /* OpenGLWrapper.mm in Sources */,
 				5B0740BA1DBA8F43006DB019 /* AppDelegate.swift in Sources */,
 				5B2DAC6A1DBDB476004CA30F /* OpenCVWrapper.mm in Sources */,
 			);

@@ -6,8 +6,8 @@
 //  Copyright © 2016 Nikolas Chaconas. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "OpenGLWrapper.hpp"
+
 @interface OpenCVWrapper : NSObject <NSCoding>
 -(void) finishCalibration;
 -(UIImage *) makeMatFromImage: (UIImage *) image;
@@ -15,4 +15,5 @@
 -(int) getBloop;
 -(bool) checkWait;
 -(void) setBloop: (int) num;
+-(OpenGLWrapper *) initializeOpenGL;
 @end

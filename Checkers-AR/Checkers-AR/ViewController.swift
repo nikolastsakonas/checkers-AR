@@ -26,7 +26,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     var rotated = false
     var previewLayer = AVCaptureVideoPreviewLayer()
     var playingLayer = CALayer()
-    
     @IBOutlet weak var successLabel: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,16 +37,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             previewView.transform = CGAffineTransform(rotationAngle: 90.0 * 3.14 / 180.0)
         
             if let data = ud.object(forKey: "calibrator") as? NSData {
-            calibrator = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! OpenCVWrapper
-            
-            //debugging
-            calibrator.setBloop(3000)
-
-            print("getting bloop")
-            print(calibrator.getBloop())
-                
-            removeCalibrationPrompts()
-        }
+                print("retrieving calibrator data")
+                calibrator = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! OpenCVWrapper
+                removeCalibrationPrompts()
+            } else {
+                print("calibrator not saved")
+            }
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -71,12 +67,10 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         //remove all calibration buttons/labels
         removeCalibrationPrompts()
 
-        //debugging
-        calibrator.setBloop(3000)
-
         //save calibration data so we don't have to calibrate next time user uses the app
         ud.set(NSKeyedArchiver.archivedData(withRootObject: calibrator), forKey: "calibrator")
         
+        print("setting calibration data")
         //will want to shut off camera and stuff here
         leftToCalibrateLabel.alpha = 0.0
         calibrationInstructionsLabel.alpha = 0.0
@@ -88,7 +82,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         })
         
         clearLayers()
-        
     }
     
     func calibrateImage(pickedImage: UIImage) {
@@ -113,7 +106,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         //increment calibrated count
         totalCalibrated += 1
         let leftToCalibrate = 10 - totalCalibrated
-        print("changing text to \(leftToCalibrate)")
         leftToCalibrateLabel.text = "\(leftToCalibrate) Images Left To Calibrate"
         
         //only need 10 images to calibrate
@@ -144,7 +136,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         calibrateImageButton.isEnabled = true
         totalCalibrated = 0
         leftToCalibrateLabel.text = "10 Images Left To Calibrate"
-        
+        print("setting bloop")
+        calibrator.setBloop(5000)
         
         //don't need to reinitialize camera if we've already used it
         if(session.inputs.isEmpty) {
@@ -207,14 +200,20 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     
     @IBAction func beginGameButtonPressed(_ sender: AnyObject) {
         //don't need to reinitialize camera if we've already used it
-        playing = true;
-        if(session.inputs.isEmpty) {
+        playing = !playing;
+        if(playing) {
+            calibrator.initializeOpenGL()
             setPlayingLayer()
-            startCameraSession()
+            if(session.inputs.isEmpty) {
+                startCameraSession()
+            } else {
+                session.startRunning()
+            }
         } else {
-            setPlayingLayer()
-            session.startRunning()
+            clearLayers()
+            session.stopRunning()
         }
+
     }
 
     @IBAction func calibrateImageButtonPressed(_ sender: AnyObject) {
@@ -233,7 +232,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             }
         }
         if(playing) {
-            print("here")
             let img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
             DispatchQueue.main.async {
                 let newImage : UIImage;
