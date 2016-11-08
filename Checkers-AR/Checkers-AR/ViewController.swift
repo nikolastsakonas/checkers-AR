@@ -8,9 +8,11 @@
 
 import UIKit
 import AVFoundation
+import OpenGLES
 
-class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
+class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, GLKViewDelegate {
     var calibrator : OpenCVWrapper = OpenCVWrapper()
+    var openGL : OpenGLWrapper = OpenGLWrapper()
     @IBOutlet weak var calibrationInstructionsLabel: UILabel!
     var totalCalibrated = 0
     @IBOutlet weak var leftToCalibrateLabel: UILabel!
@@ -24,21 +26,38 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     var session = AVCaptureSession()
     var playing = false
     var rotated = false
+    var openGLInitialized = false
     var previewLayer = AVCaptureVideoPreviewLayer()
     var playingLayer = CALayer()
     @IBOutlet weak var successLabel: UILabel!
+    @IBOutlet weak var glkView: GLKView!
+    var context : EAGLContext = EAGLContext.init(api: EAGLRenderingAPI.openGLES1)
+    var effect = GLKBaseEffect()
+    var currentImage : UIImage = UIImage()
+    var imageSize : CGSize = CGSize()
+    var frameBuffer : GLuint = GLuint()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
             beginGameButton.layer.cornerRadius = 5
             calibrateImageButton.layer.cornerRadius = 5
             beginCalibrationButton.layer.cornerRadius = 5
-        
+            glkView.delegate = self
             previewView.transform = CGAffineTransform(rotationAngle: 90.0 * 3.14 / 180.0)
         
             if let data = ud.object(forKey: "calibrator") as? NSData {
                 print("retrieving calibrator data")
+                let sync = ud.synchronize()
+                
+                if(sync == true) {
+                    print("CALIBRATION can be LOADED")
+                }
                 calibrator = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! OpenCVWrapper
+                
+                print("saving calibration data")
+                
+                
                 removeCalibrationPrompts()
             } else {
                 print("calibrator not saved")
@@ -69,8 +88,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
 
         //save calibration data so we don't have to calibrate next time user uses the app
         ud.set(NSKeyedArchiver.archivedData(withRootObject: calibrator), forKey: "calibrator")
+        let sync = ud.synchronize()
         
-        print("setting calibration data")
+        if(sync == true) {
+            print("CALIBRATION DATA SAVED")
+        }
+        
+        
         //will want to shut off camera and stuff here
         leftToCalibrateLabel.alpha = 0.0
         calibrationInstructionsLabel.alpha = 0.0
@@ -120,7 +144,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         clearLayers()
         previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.frame = imageView.bounds;
-        previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        previewLayer.videoGravity = AVLayerVideoGravityResizeAspect;
 
         imageView.layer.addSublayer(previewLayer)
     }
@@ -194,7 +218,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         clearLayers()
         playingLayer.transform = CATransform3DMakeRotation(90.0 * 3.14 / 180.0, 0.0, 0.0, 1.0);
         playingLayer.frame = self.imageView.bounds
-        playingLayer.contentsGravity = kCAGravityResizeAspect
+        playingLayer.contentsGravity = kCAGravityCenter
         self.imageView.layer.addSublayer(playingLayer)
     }
     
@@ -202,7 +226,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         //don't need to reinitialize camera if we've already used it
         playing = !playing;
         if(playing) {
-            calibrator.initializeOpenGL()
             setPlayingLayer()
             if(session.inputs.isEmpty) {
                 startCameraSession()
@@ -213,9 +236,36 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             clearLayers()
             session.stopRunning()
         }
-
     }
+    
+    func initializeOpenGL() {
+        let x = (playingLayer.bounds.height - imageSize.height) / 2.0
+        let y = (playingLayer.bounds.width - imageSize.width) / 2.0
 
+        glkView.frame = CGRect(x: x, y: y, width: imageSize.height, height: imageSize.width)
+        
+        openGL = calibrator.initializeOpenGL()
+        openGL.setView(self.glkView)
+        
+        
+        print("setting context")
+        EAGLContext.setCurrent(context)
+        glkView.context = context
+        glkView.enableSetNeedsDisplay = true;
+        glkView.drawableColorFormat = GLKViewDrawableColorFormat.RGBA8888
+        glkView.drawableDepthFormat = GLKViewDrawableDepthFormat.formatNone
+        glkView.drawableStencilFormat = GLKViewDrawableStencilFormat.formatNone
+        glkView.drawableMultisample = GLKViewDrawableMultisample.multisampleNone
+        glkView.bindDrawable()
+        glkView.isOpaque = false
+        
+        openGL.setParams(effect, cont: glkView.context, width: Double(imageSize.height), height: Double(imageSize.width))
+    }
+    
+    func glkView(_ view: GLKView, drawIn rect: CGRect) {
+        openGL.drawObjects()
+    }
+    
     @IBAction func calibrateImageButtonPressed(_ sender: AnyObject) {
         calibratePressed = true
     }
@@ -240,8 +290,15 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
                 } else {
                     newImage = img
                 }
-
+                self.currentImage = newImage;
+                self.glkView.display()
                 self.playingLayer.contents = newImage.cgImage;
+                
+                if(self.openGLInitialized == false) {
+                    self.openGLInitialized = true
+                    self.imageSize = newImage.size
+                    self.initializeOpenGL()
+                }
             }
         }
     }

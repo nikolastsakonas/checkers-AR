@@ -8,9 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
 #import <QuartzCore/QuartzCore.h>
+#import <GLKit/GLKit.h>
 
 @interface OpenGLWrapper : NSObject {
     CAEAGLLayer* _eaglLayer;
@@ -19,5 +18,8 @@
 }
 
 -(void) initOpenGL: (void*)opencv;
+-(void) drawObjects;
+-(void) setView: (GLKView *) view;
+-(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height;
 
 @end

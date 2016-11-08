@@ -26,6 +26,13 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="659"/>
                                 <color key="backgroundColor" red="0.254012609" green="0.65355039270000004" blue="0.080035104620000005" alpha="1" colorSpace="calibratedRGB"/>
                             </imageView>
+                            <glkView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" fixedFrame="YES" enableSetNeedsDisplay="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zzk-Lf-gpO">
+                                <rect key="frame" x="31" y="21" width="328" height="562"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </glkView>
+                            <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cVf-Kc-z0p">
+                                <rect key="frame" x="31" y="44" width="315" height="603"/>
+                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BOT-kX-alw">
                                 <rect key="frame" x="83" y="581" width="212" height="46"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
@@ -79,9 +86,6 @@
                                 <color key="textColor" red="0.99072458883132442" green="1" blue="0.98177005910667448" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cVf-Kc-z0p">
-                                <rect key="frame" x="31" y="44" width="315" height="603"/>
-                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Calibration Complete!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AQI-68-I7W">
                                 <rect key="frame" x="39" y="243" width="292" height="20"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
@@ -117,6 +121,7 @@
                         <outlet property="beginGameButton" destination="qHh-Nk-abA" id="gfB-RO-2z8"/>
                         <outlet property="calibrateImageButton" destination="8gk-Ai-Eo2" id="JW5-Qq-c55"/>
                         <outlet property="calibrationInstructionsLabel" destination="Ge1-U3-Uc1" id="36f-yq-nHN"/>
+                        <outlet property="glkView" destination="Zzk-Lf-gpO" id="QD6-jg-2jy"/>
                         <outlet property="imageView" destination="fqL-xD-s4l" id="Ltc-mO-Igg"/>
                         <outlet property="leftToCalibrateLabel" destination="tdc-AS-Fqi" id="9tI-AF-DBh"/>
                         <outlet property="previewView" destination="cVf-Kc-z0p" id="R4F-DL-yb7"/>

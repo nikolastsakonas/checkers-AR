@@ -23,7 +23,6 @@
     double fovx, fovy, focalLength, aspectRatio;
     cv::Point2d principalPoint;
     double fx, fy, cx, cy;
-    double persMat[16];
     double d0, d1, d2, d3;
     bool wait;
     clock_t prevTimeStamp;
@@ -110,9 +109,10 @@
 
 
         cv::drawChessboardCorners(image, boardSize, corners, true);
-        cv::circle(image, cv::Point(corners[0].x,corners[0].y), 20, cv::Scalar(1,0,0,1));
-        cv::circle(image, cv::Point(corners[0].x + 25.0, corners[0].y), 20, cv::Scalar(1,0,0,1));
-        cv::circle(image, cv::Point(corners[corners.size() - 1].x,corners[corners.size() - 1].y), 50, cv::Scalar(1,0,0,1));
+//        for(int i = 0; i < corners.size(); i++) {
+//            cv::circle(image, cv::Point(corners[i].x + 21.0, corners[i].y - 22.0), 18, cv::Scalar(1,0,0,1));
+//        }
+        
         
 
     }
@@ -137,13 +137,13 @@
     //negated third column because camera looks down the negative-z axis
     //and then transposed it to get into opengl row major
     
-    persMat[0] = fx;
-    persMat[8] = -cx;
-    persMat[5] = fy;
-    persMat[9] = -cy;
-    persMat[10] = near + far;
-    persMat[14] = near * far;
-    persMat[11] = -1.0f;
+    persMat[0] = (float)fx;
+    persMat[8] = (float)-cx;
+    persMat[5] = (float)fy;
+    persMat[9] = (float)-cy;
+    persMat[10] = (float)near + far;
+    persMat[14] = (float)near * far;
+    persMat[11] = (float)-1.0f;
 }
 
 //rebuild camera matrix
@@ -206,6 +206,7 @@
 }
 
 -(id)initWithCoder:(NSCoder *)aDecoder{
+    std:: cout << "initing with coder" << std::endl;
     self = [self init];
     //bloop for debugging
     bloop = [aDecoder decodeIntForKey:@"bloop"];
