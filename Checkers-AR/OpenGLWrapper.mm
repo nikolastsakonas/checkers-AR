@@ -52,6 +52,19 @@
 }
 
 - (void) drawObjects {
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    GLfloat vertice[] = {1,0,0, 0,1,0, -1,0,0};
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+    
+    glVertexPointer(3, GL_FLOAT, 0, vertice);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 360);
+    
+    glDisableClientState(GL_VERTEX_ARRAY);
+    
     GLfloat near = 0.05f, far = 1000.0;
 //    glBindFramebuffer(GL_FRAMEBUFFER, viewFramebuffer);
     
@@ -62,12 +75,11 @@
 //    glMultMatrixf(calibrator->persMat);
     
     //put semi-transparent film
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(1, 0.5, 0.5, 0.2);
-    
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    glClearColor(1, 0.5, 0.5, 0.2);
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
 
     glVertexPointer(2, GL_FLOAT, 0, vertices);
     glEnable(GL_VERTEX_ARRAY);
@@ -79,6 +91,7 @@
 //    glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER];
 }
+
 
 -(void) setView: (GLKView *) _view {
     view = (GLKView *)_view;

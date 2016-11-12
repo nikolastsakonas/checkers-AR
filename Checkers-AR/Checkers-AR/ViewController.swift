@@ -265,6 +265,11 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     func glkView(_ view: GLKView, drawIn rect: CGRect) {
         openGL.drawObjects()
     }
+//    func drawRect(rect: CGRect)
+//    {
+//        glClear(GLbitfield(GL_COLOR_BUFFER_BIT));
+//        glClearColor(1, 0.5, 0.5, 0.2);
+//    }
     
     @IBAction func calibrateImageButtonPressed(_ sender: AnyObject) {
         calibratePressed = true
