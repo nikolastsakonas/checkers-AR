@@ -113,7 +113,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         //disable button while calibrating
         calibrateImageButton.isEnabled = false;
         var img: UIImage
-        img = calibrator.findChessboardCorners(pickedImage, true)
+        img = calibrator.findChessboardCorners(pickedImage)
         
         //display calibrated image over camera view
         previewView.alpha = 1.0
@@ -259,17 +259,14 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         glkView.bindDrawable()
         glkView.isOpaque = false
         
-        openGL.setParams(effect, cont: glkView.context, width: Double(imageSize.height), height: Double(imageSize.width))
+        openGL.setParams(effect, cont: glkView.context, width: Double(glkView.bounds.height), height: Double(glkView.bounds.width))
     }
     
     func glkView(_ view: GLKView, drawIn rect: CGRect) {
-        openGL.drawObjects()
+        let newImage = openGL.drawObjects(self.currentImage)
+    
+        self.playingLayer.contents = newImage?.cgImage;
     }
-//    func drawRect(rect: CGRect)
-//    {
-//        glClear(GLbitfield(GL_COLOR_BUFFER_BIT));
-//        glClearColor(1, 0.5, 0.5, 0.2);
-//    }
     
     @IBAction func calibrateImageButtonPressed(_ sender: AnyObject) {
         calibratePressed = true
@@ -289,21 +286,15 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         if(playing) {
             let img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
             DispatchQueue.main.async {
-                let newImage : UIImage;
-                if(!self.calibrator.checkWait()) {
-                    newImage = self.calibrator.findChessboardCorners(img, false)
-                } else {
-                    newImage = img
-                }
-                self.currentImage = newImage;
-                self.glkView.display()
-                self.playingLayer.contents = newImage.cgImage;
                 
                 if(self.openGLInitialized == false) {
                     self.openGLInitialized = true
-                    self.imageSize = newImage.size
+                    self.imageSize = img.size
                     self.initializeOpenGL()
                 }
+                
+                self.currentImage = img;
+                self.glkView.display()
             }
         }
     }

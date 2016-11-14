@@ -13,10 +13,14 @@
 }
 -(void) finishCalibration;
 -(UIImage *) makeMatFromImage: (UIImage *) image;
--(UIImage *) findChessboardCorners:(UIImage *) image1 :(bool) calibrating;
+-(UIImage *) findChessboardCorners:(UIImage *) image1;
+-(bool) findChessboardCornersPlaying:(UIImage *) image1;
+-(void) solvePnP;
 -(int) getBloop;
--(bool) checkWait;
 -(void) setBloop: (int) num;
+-(void) solveRodrigues;
+-(void) loadMatrix;
+-(UIImage *) drawCorners;
 -(OpenGLWrapper *) initializeOpenGL;
 
 @end

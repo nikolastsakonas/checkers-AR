@@ -9,6 +9,8 @@
 #import "OpenCVWrapper.hpp"
 #include <opencv2/opencv.hpp>
 #import <opencv2/imgcodecs/ios.h>
+
+
 //unfortunately need to do this to hide all opencv calls from swift
 //otherwise I would put these in .hpp
 @implementation OpenCVWrapper {
@@ -20,25 +22,20 @@
     cv::Size boardSize;
     cv::Size imageSize;
     std::vector<cv::Mat> rvecs, tvecs;
+    cv::Mat rvec, tvec, rotationMat;;
     double fovx, fovy, focalLength, aspectRatio;
     cv::Point2d principalPoint;
     double fx, fy, cx, cy;
     double d0, d1, d2, d3;
     bool wait;
-    clock_t prevTimeStamp;
+    std::vector<cv::Point3f> objectCoordinates;
+    cv::Mat TMat;
+    std::vector<cv::Point2f> currentCorners;
+    cv::Mat currentImage;
 }
 
 -(int) getBloop {
     return bloop;
-}
-
--(bool) checkWait {
-    if(wait) wait = ![self checkTimeStamp];
-    return wait;
-}
-
--(bool) checkTimeStamp {
-    return (clock() - prevTimeStamp > 20*1e-3*CLOCKS_PER_SEC);
 }
 
 -(void) setBloop: (int) num {
@@ -58,67 +55,104 @@
     self = [super init];
     if (self) {
         int squareSize = 1;
-        objectPoints.push_back(std::vector <cv::Point3f> ());
-        for( int i = 6; i >= 0; --i )
-            for( int j = 6; j >= 0; --j )
-                objectPoints[0].push_back(cv::Point3f(double( j*squareSize ), double( i*squareSize ), 0));
         boardSize = cv::Size(7,7);
+        objectPoints.push_back(std::vector <cv::Point3f> ());
+        for( int i = 0; i < boardSize.height; ++i )
+            for( int j = 0; j < boardSize.width; ++j )
+                objectPoints[0].push_back(cv::Point3f(double( j*squareSize ), double( i*squareSize ), 0));
         
+        //create coordinate axis (0,0,0), (squareSize,0,0)...etc
+        for( int i = 0; i < boardSize.height; ++i ) {
+            for( int j = 0; j < boardSize.width; ++j ) {
+                objectCoordinates.push_back(cv::Point3f(double( j*squareSize ), double( i*squareSize ), 0));
+            }
+        }
+        
+        TMat = cv::Mat(4, 4, CV_64F);
         cameraMatrix = cv::Mat::eye(3, 3, CV_64F);
         distCoeffs = cv::Mat::zeros(4, 1, CV_64F);
         wait = false;
-        prevTimeStamp = 0;
     }
     return self;
 }
 
--(UIImage*) findChessboardCorners:(UIImage*) image1 :(bool) calibrating {
+-(UIImage *) drawCorners {
+    cv::Mat image = currentImage;
+    
+    cv::cvtColor(image, image, CV_BGR2RGB);
+    cv::drawChessboardCorners(image, boardSize, currentCorners, true);
+    cv::circle(image, cv::Point(0,0), 10, cv::Scalar(1,0,0,1));
+    cv::circle(image, cv::Point(0,50), 10, cv::Scalar(1,0,0,1));
+    return MatToUIImage(image);
+}
+
+
+-(bool) findChessboardCornersPlaying:(UIImage*) image1 {
+    cv::Mat image;
+    UIImageToMat(image1, image);
+    
+    cv::cvtColor(image, image, CV_RGB2BGR);
+    currentImage = image.clone();
+    return cv::findChessboardCorners(image, boardSize, currentCorners, CV_CALIB_CB_ADAPTIVE_THRESH);
+}
+
+-(void) loadMatrix {
+    glLoadMatrixf(&TMat.at<GLfloat>(0, 0));
+}
+
+-(void) solveRodrigues {
+    cv::Rodrigues(rvec, rotationMat);
+    
+    //Transformation Matrix
+    TMat( cv::Range(0,3), cv::Range(0,3)) = rotationMat * 1;
+    TMat( cv::Range(0,3), cv::Range(3,4) ) = tvec * 1;
+    
+    //add row of 0, 0, 0, 1
+    TMat.at<double>(3,0) = 0;
+    TMat.at<double>(3,1) = 0;
+    TMat.at<double>(3,2) = 0;
+    TMat.at<double>(3,3) = 1;
+    
+    //opencv has y going down
+    //and x left
+    //rotate 180 around z axis
+    cv::Mat RotMat = cv::Mat::zeros(4, 4, CV_64F);
+    RotMat.at<double>(0,0) = -1.0f;
+    RotMat.at<double>(1,1) = -1.0f;
+    RotMat.at<double>(2,2) = 1.0f;
+    RotMat.at<double>(3,3) = 1.0f;
+    
+    //we need to rotate 180 around the z axis
+    // AND transpose the matrix
+    // OpenCv uses both a different coordinate system
+    // and column major order...
+    TMat = (RotMat * TMat).t();
+}
+
+-(void) solvePnP {
+    cv::solvePnP(objectCoordinates, currentCorners, cameraMatrix, distCoeffs, rvec, tvec);
+}
+
+-(UIImage*) findChessboardCorners:(UIImage*) image1 {
     cv::Mat image;
     UIImageToMat(image1, image);
     cv::cvtColor(image, image, CV_RGB2BGR);
-    //need to rotate image 90 degrees because
-    //for some reason its sideways...
-//    cv::Point2f src_center(image.cols/2.0F, image.rows/2.0F);
-//    cv::Mat Rot = getRotationMatrix2D(src_center, -90.0, 1.0);
-//    cv::Mat Rot2 = getRotationMatrix2D(src_center, 90.0, 1.0);
-//    cv::warpAffine(image, image, Rot, image.size());
     
     std::vector<cv::Point2f> corners;
     bool found = false;
-    if(calibrating) {
-        found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
-    }
-    else {
-        found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_FAST_CHECK + CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
-        if(!found) {
-            wait = true;
-            prevTimeStamp = clock();
-        }
-    }
+    found = findChessboardCorners(image, boardSize, corners, CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE);
     
     if(found) {
         imageSize = image.size();
-        if(calibrating) {
-            cv::Mat tempView;
-            cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
-            cornerSubPix( tempView, corners, cv::Size(3,3),
-                         cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
-            
-            imagePoints.push_back(corners);
-        }
-
-
+        cv::Mat tempView;
+//        cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
+//        cornerSubPix( tempView, corners, cv::Size(3,3),
+//                     cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
+        
+        imagePoints.push_back(corners);
         cv::drawChessboardCorners(image, boardSize, corners, true);
-//        for(int i = 0; i < corners.size(); i++) {
-//            cv::circle(image, cv::Point(corners[i].x + 21.0, corners[i].y - 22.0), 18, cv::Scalar(1,0,0,1));
-//        }
-        
-        
-
     }
-
     
-//    cv::warpAffine(image, image, Rot2, image.size());
     cvtColor(image, image, CV_BGR2RGB);
     return MatToUIImage(image);
 }
@@ -141,8 +175,8 @@
     persMat[8] = (float)-cx;
     persMat[5] = (float)fy;
     persMat[9] = (float)-cy;
-    persMat[10] = (float)near + far;
-    persMat[14] = (float)near * far;
+    persMat[10] = (float)(near + far);
+    persMat[14] = (float)(near * far);
     persMat[11] = (float)-1.0f;
 }
 
