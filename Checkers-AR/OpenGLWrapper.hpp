@@ -21,6 +21,12 @@
 -(void) initOpenGL: (void*)opencv;
 - (UIImage *) drawObjects: (UIImage *) image :(int*) isFound;
 -(void) setView: (GLKView *) view;
--(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height x:(double)_x y:(double) _y;
+-(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height;
+
+typedef struct checker {
+    double x;
+    double y;
+    int color;
+} checkerPiece;
 
 @end

@@ -259,7 +259,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         glkView.bindDrawable()
         glkView.isOpaque = false
         
-        openGL.setParams(effect, cont: glkView.context, width: Double(imageSize.width), height: Double(imageSize.height), x: Double(x), y: Double(y))
+        openGL.setParams(effect, cont: glkView.context, width: Double(imageSize.width), height: Double(imageSize.height))
     }
     
     func glkView(_ view: GLKView, drawIn rect: CGRect) {
