@@ -36,11 +36,11 @@
     screen_height = dim[3];
     x = _x;
     y = _y;
-//    width = _width;
-//    height = _height;
+    width = _width;
+    height = _height;
     
-    width = screen_width;
-    height = screen_height;
+//    width = screen_width;
+//    height = screen_height;
     wait = false;
     prevTimeStamp = 0;
     
@@ -206,8 +206,7 @@ void drawAxes(float length)
     *isFound = 0;
     //set the viewport
 
-    glViewport(0, 0, width, height);
-    
+//    glViewport(x, y, width, height);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //    glClearColor(1, 0, 0, 0.3);
@@ -217,9 +216,9 @@ void drawAxes(float length)
     
 //    [self gluPerspective:90 :1.0 :near :far];
 //    glFrustumf(0, width, height, 0, near, far)
-    glOrthof(0, width, 0, height, near, far);
+    glOrthof(0, (float)width, 0, (float)height, (float)near, (float)far);
     glMultMatrixf(calibrator->persMat);
-    
+//    
     bool found = false;
     
     if(![self checkWait]) {
@@ -232,7 +231,7 @@ void drawAxes(float length)
             
             *isFound = 1;
             //for debugging
-            image = [ calibrator drawCorners ];
+//            image = [ calibrator drawCorners ];
             
             //use intrinsic parameters to solve pnp and rodrigues
             //this should give us extrinsic parameters
@@ -246,8 +245,6 @@ void drawAxes(float length)
 //            [self gluLookAt:0 :0 :near :0 :0 :0 :0 :1 :0];
             
             [calibrator loadMatrix];
-            
-            
             
             glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
             glEnableClientState(GL_VERTEX_ARRAY);

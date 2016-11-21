@@ -108,6 +108,7 @@
 }
 
 -(void) loadMatrix {
+    TMat.convertTo(TMat, CV_32F);
     glLoadMatrixf(&TMat.at<float>(0,0));
 }
 
@@ -124,20 +125,21 @@
     TMat( cv::Range(0,3), cv::Range(3,4) ) = tvec * 1;
     
     //add row of 0, 0, 0, 1
-    TMat.at<float>(3,0) = 0;
-    TMat.at<float>(3,1) = 0;
-    TMat.at<float>(3,2) = 0;
-    TMat.at<float>(3,3) = 1;
+    TMat.at<double>(3,0) = 0.0f;
+    TMat.at<double>(3,1) = 0.0f;
+    TMat.at<double>(3,2) = 0.0f;
+    TMat.at<double>(3,3) = 1.0f;
     
     cv::Mat RotMat = cv::Mat::zeros(4, 4, CV_64F);
-    RotMat.at<float>(0,0) = 1.0f;
-    RotMat.at<float>(1,1) = -1.0f;
-    RotMat.at<float>(2,2) = -1.0f;
-    RotMat.at<float>(3,3) = 1.0f;
+    RotMat.at<double>(0,0) = 1.0f;
+    RotMat.at<double>(1,1) = -1.0f;
+    RotMat.at<double>(2,2) = -1.0f;
+    RotMat.at<double>(3,3) = 1.0f;
     
     // AND transpose the matrix
     // OpenCv uses both a different coordinate system
     // and column major order...
+    
     TMat = (RotMat * TMat).t();
 }
 
