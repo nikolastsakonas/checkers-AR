@@ -19,7 +19,7 @@
 }
 
 -(void) initOpenGL: (void*)opencv;
-- (UIImage *) drawObjects: (UIImage *) image;
+- (UIImage *) drawObjects: (UIImage *) image :(int*) isFound;
 -(void) setView: (GLKView *) view;
 -(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height;
 

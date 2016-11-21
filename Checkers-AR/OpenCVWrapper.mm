@@ -22,7 +22,6 @@
     cv::Size boardSize;
     cv::Size imageSize;
     std::vector<cv::Mat> rvecs, tvecs;
-    cv::Mat rvec, tvec, rotationMat;;
     double fovx, fovy, focalLength, aspectRatio;
     cv::Point2d principalPoint;
     double fx, fy, cx, cy;
@@ -42,20 +41,20 @@
     bloop = num;
 }
 //this will come in handy
--(UIImage *) makeMatFromImage: (UIImage *) image {
-    cv::Mat imageMat;
-    UIImageToMat(image, imageMat);
-    //can do all sorts of stuff with the MAT
-    //and then convert it back to UIImage for use in swift
-    return MatToUIImage(imageMat);
-}
+//-(UIImage *) makeMatFromImage: (UIImage *) image {
+//    cv::Mat imageMat;
+//    UIImageTddddoMat(image, imageMat);
+//    //can do all sorts of stuff with the MAT
+//    //and then convert it back to UIImage for use in swift
+//    return MatToUIImage(imageMat);
+//}
 
 - (instancetype)init
 {
     self = [super init];
     if (self) {
         int squareSize = 1;
-        boardSize = cv::Size(7,7);
+        boardSize = cv::Size(6,8);
         objectPoints.push_back(std::vector <cv::Point3f> ());
         for( int i = 0; i < boardSize.height; ++i )
             for( int j = 0; j < boardSize.width; ++j )
@@ -66,6 +65,10 @@
             for( int j = 0; j < boardSize.width; ++j ) {
                 objectCoordinates.push_back(cv::Point3f(double( j*squareSize ), double( i*squareSize ), 0));
             }
+        }
+        
+        for( int i = 0; i < 16; i ++ ) {
+            persMat[i] = 0;
         }
         
         TMat = cv::Mat(4, 4, CV_64F);
@@ -79,63 +82,95 @@
 -(UIImage *) drawCorners {
     cv::Mat image = currentImage;
     
-    cv::cvtColor(image, image, CV_BGR2RGB);
     cv::drawChessboardCorners(image, boardSize, currentCorners, true);
     cv::circle(image, cv::Point(0,0), 10, cv::Scalar(1,0,0,1));
-    cv::circle(image, cv::Point(0,50), 10, cv::Scalar(1,0,0,1));
+    
+    
+    cv::Point point; point.x = 0; point.y = 10;
+    
+    cv::circle(image, point, 10, cv::Scalar(1,0,0,1));
+    
+    cv::cvtColor(image, image, CV_BGR2RGB);
     return MatToUIImage(image);
 }
 
 
 -(bool) findChessboardCornersPlaying:(UIImage*) image1 {
-    cv::Mat image;
-    UIImageToMat(image1, image);
+    cv::Mat image, tempView;
+    image = [self imageToMat:image1];
     
     cv::cvtColor(image, image, CV_RGB2BGR);
+
+    int found = cv::findChessboardCorners(image, boardSize, currentCorners, CV_CALIB_CB_ADAPTIVE_THRESH);
+    
     currentImage = image.clone();
-    return cv::findChessboardCorners(image, boardSize, currentCorners, CV_CALIB_CB_ADAPTIVE_THRESH);
+    return found;
 }
 
 -(void) loadMatrix {
-    glLoadMatrixf(&TMat.at<GLfloat>(0, 0));
+    glLoadMatrixf(&TMat.at<float>(0,0));
 }
 
--(void) solveRodrigues {
+-(void) solvePnPRodrigues {
+    cv::Mat rvec, tvec;
+    cv::solvePnP(objectCoordinates, currentCorners, cameraMatrix, distCoeffs, rvec, tvec);
+    
+    cv::Mat rotationMat;
     cv::Rodrigues(rvec, rotationMat);
+    TMat = cv::Mat(4, 4, CV_64F);
     
     //Transformation Matrix
     TMat( cv::Range(0,3), cv::Range(0,3)) = rotationMat * 1;
     TMat( cv::Range(0,3), cv::Range(3,4) ) = tvec * 1;
     
     //add row of 0, 0, 0, 1
-    TMat.at<double>(3,0) = 0;
-    TMat.at<double>(3,1) = 0;
-    TMat.at<double>(3,2) = 0;
-    TMat.at<double>(3,3) = 1;
+    TMat.at<float>(3,0) = 0;
+    TMat.at<float>(3,1) = 0;
+    TMat.at<float>(3,2) = 0;
+    TMat.at<float>(3,3) = 1;
     
-    //opencv has y going down
-    //and x left
-    //rotate 180 around z axis
     cv::Mat RotMat = cv::Mat::zeros(4, 4, CV_64F);
-    RotMat.at<double>(0,0) = -1.0f;
-    RotMat.at<double>(1,1) = -1.0f;
-    RotMat.at<double>(2,2) = 1.0f;
-    RotMat.at<double>(3,3) = 1.0f;
+    RotMat.at<float>(0,0) = 1.0f;
+    RotMat.at<float>(1,1) = -1.0f;
+    RotMat.at<float>(2,2) = -1.0f;
+    RotMat.at<float>(3,3) = 1.0f;
     
-    //we need to rotate 180 around the z axis
     // AND transpose the matrix
     // OpenCv uses both a different coordinate system
     // and column major order...
     TMat = (RotMat * TMat).t();
 }
 
--(void) solvePnP {
-    cv::solvePnP(objectCoordinates, currentCorners, cameraMatrix, distCoeffs, rvec, tvec);
+-(UIImage *) flipImage: (UIImage *) image1 {
+    cv::Mat image;
+    UIImageToMat(image1, image);
+    
+    //flip mat 90 degrees clockwise;
+    cv::Point2f src_center(image.cols/2.0F, image.rows/2.0F);
+    cv::Mat Rot = getRotationMatrix2D(src_center, -90.0, 1.0);
+    cv::Mat dst;
+    cv::warpAffine(image, image, Rot, image.size());
+    
+    return MatToUIImage(image);
+}
+
+-(cv::Mat) imageToMat:(UIImage*) image1 {
+    cv::Mat image;
+    UIImageToMat(image1, image);
+    
+    //flip mat 90 degrees clockwise;
+//    cv::Point2f src_center(image.cols/2.0F, image.rows/2.0F);
+//    cv::Mat Rot = getRotationMatrix2D(src_center, -90.0, 1.0);
+//    cv::Mat dst;
+//    cv::warpAffine(image, image, Rot, image.size());
+
+    return image;
 }
 
 -(UIImage*) findChessboardCorners:(UIImage*) image1 {
     cv::Mat image;
-    UIImageToMat(image1, image);
+    
+    image = [self imageToMat:image1];
     cv::cvtColor(image, image, CV_RGB2BGR);
     
     std::vector<cv::Point2f> corners;
@@ -145,9 +180,9 @@
     if(found) {
         imageSize = image.size();
         cv::Mat tempView;
-//        cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
-//        cornerSubPix( tempView, corners, cv::Size(3,3),
-//                     cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
+        cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
+        cornerSubPix( tempView, corners, cv::Size(3,3),
+                     cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
         
         imagePoints.push_back(corners);
         cv::drawChessboardCorners(image, boardSize, corners, true);
@@ -160,7 +195,7 @@
 
 
 -(void) createPerspectiveMatrix {
-    double near = 0.05f, far = 1000.0;
+    double near = 0.05f, far = 1000.0f;
     
     
     // Matrix used for perspective
@@ -177,7 +212,7 @@
     persMat[9] = (float)-cy;
     persMat[10] = (float)(near + far);
     persMat[14] = (float)(near * far);
-    persMat[11] = (float)-1.0f;
+    persMat[11] = -1.0f;
 }
 
 //rebuild camera matrix

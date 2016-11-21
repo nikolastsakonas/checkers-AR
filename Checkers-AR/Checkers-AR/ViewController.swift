@@ -25,7 +25,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     var calibratePressed : Bool = false
     var session = AVCaptureSession()
     var playing = false
-    var rotated = false
+    var rotation = ""
     var openGLInitialized = false
     var previewLayer = AVCaptureVideoPreviewLayer()
     var playingLayer = CALayer()
@@ -44,7 +44,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             calibrateImageButton.layer.cornerRadius = 5
             beginCalibrationButton.layer.cornerRadius = 5
             glkView.delegate = self
-            previewView.transform = CGAffineTransform(rotationAngle: 90.0 * 3.14 / 180.0)
         
             if let data = ud.object(forKey: "calibrator") as? NSData {
                 print("retrieving calibrator data")
@@ -120,8 +119,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         previewView.contentMode = .scaleAspectFill
         previewView.image = img
         
-        //have to rotate image 90 degrees...
-    
         //fade away calibrated image so user can take another image
         UIView.animate(withDuration: 2.70, animations: {
             self.previewView.alpha = 0.0
@@ -216,7 +213,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     
     func setPlayingLayer() {
         clearLayers()
-        playingLayer.transform = CATransform3DMakeRotation(90.0 * 3.14 / 180.0, 0.0, 0.0, 1.0);
+//        playingLayer.transform = CATransform3DMakeRotation(90.0 * 3.14 / 180.0, 0.0, 0.0, 1.0);
         playingLayer.frame = self.imageView.bounds
         playingLayer.contentsGravity = kCAGravityCenter
         self.imageView.layer.addSublayer(playingLayer)
@@ -263,8 +260,10 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     }
     
     func glkView(_ view: GLKView, drawIn rect: CGRect) {
-        let newImage = openGL.drawObjects(self.currentImage)
-    
+        var found : Int32 = 0
+        
+        let newImage = openGL.drawObjects(self.currentImage, &found)
+        
         self.playingLayer.contents = newImage?.cgImage;
     }
     
@@ -272,19 +271,45 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         calibratePressed = true
     }
     
+    //flip the image
+    func flipImage(oldImage: UIImage) -> UIImage {
+        //Calculate the size of the rotated view's containing box for our drawing space
+        let rotatedViewBox: UIView = UIView(frame: CGRect(x: 0, y: 0, width: oldImage.size.width, height: oldImage.size.height))
+        let t: CGAffineTransform = CGAffineTransform(rotationAngle: 90 * CGFloat(M_PI / 180))
+        rotatedViewBox.transform = t
+        let rotatedSize: CGSize = rotatedViewBox.frame.size
+        //Create the bitmap context
+        UIGraphicsBeginImageContext(rotatedSize)
+        let bitmap: CGContext = UIGraphicsGetCurrentContext()!
+        //Move the origin to the middle of the image so we will rotate and scale around the center.
+        bitmap.translateBy(x: rotatedSize.width / 2, y: rotatedSize.height / 2)
+        //Rotate the image context
+        bitmap.rotate(by: (90 * CGFloat(M_PI / 180)))
+        //Now, draw the rotated/scaled image into the context
+        bitmap.scaleBy(x: 1.0, y: -1.0)
+        
+        bitmap.draw(oldImage.cgImage!, in: CGRect(x: -oldImage.size.width/2, y: -oldImage.size.height / 2, width: oldImage.size.width, height: oldImage.size.height))
+        
+        let newImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return newImage
+        
+    }
     
     //delegate for when frame is captured
     //override
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         if(calibratePressed) {
             calibratePressed = false
-            let img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
+            var img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
+            img = flipImage(oldImage: img)
             DispatchQueue.main.async {
                 self.calibrateImage(pickedImage: img)
             }
         }
         if(playing) {
-            let img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
+            var img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
+            img = flipImage(oldImage: img)
             DispatchQueue.main.async {
                 
                 if(self.openGLInitialized == false) {

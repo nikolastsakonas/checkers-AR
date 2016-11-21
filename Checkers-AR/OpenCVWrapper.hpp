@@ -15,11 +15,11 @@
 -(UIImage *) makeMatFromImage: (UIImage *) image;
 -(UIImage *) findChessboardCorners:(UIImage *) image1;
 -(bool) findChessboardCornersPlaying:(UIImage *) image1;
--(void) solvePnP;
+-(void) solvePnPRodrigues;
 -(int) getBloop;
 -(void) setBloop: (int) num;
--(void) solveRodrigues;
 -(void) loadMatrix;
+-(UIImage *) flipImage: (UIImage *) image1;
 -(UIImage *) drawCorners;
 -(OpenGLWrapper *) initializeOpenGL;
 
