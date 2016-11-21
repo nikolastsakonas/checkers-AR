@@ -17,24 +17,30 @@
     GLKView *view;
     GLKBaseEffect *effect;
     EAGLContext * context;
-    double width, height, screen_width, screen_height;
+    double width, height, screen_width, screen_height, x, y;
     GLfloat vertices[720];
     GLuint viewRenderBuffer, viewFrameBuffer, colorRenderBuffer, depthRenderBuffer;
     bool wait;
     clock_t prevTimeStamp;
 }
 
--(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height {
+-(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height x:(double)_x y:(double) _y {
     effect = eff;
     context = Contextcont;
-    width = _width;
-    height = _height;
+
     
     GLfloat dim[4];
     glGetFloatv(GL_VIEWPORT, dim);
     
     screen_width = dim[2];
     screen_height = dim[3];
+    x = _x;
+    y = _y;
+//    width = _width;
+//    height = _height;
+    
+    width = screen_width;
+    height = screen_height;
     wait = false;
     prevTimeStamp = 0;
     
@@ -54,12 +60,12 @@
     
     glGenRenderbuffers(1, &colorRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA4, screen_width, screen_height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA4, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderBuffer);
     
     glGenRenderbuffers(1, &depthRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, screen_width, screen_height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
 }
 
@@ -199,18 +205,20 @@ void drawAxes(float length)
     glEnable( GL_DEPTH_TEST );
     *isFound = 0;
     //set the viewport
-    glViewport(0, 0, screen_width, screen_height);
+
+    glViewport(0, 0, width, height);
+    
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//    glClearColor(0, 0, 0, 1);
+//    glClearColor(1, 0, 0, 0.3);
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     
-    [self gluPerspective:70 :1 :near :far];
+//    [self gluPerspective:90 :1.0 :near :far];
 //    glFrustumf(0, width, height, 0, near, far)
-//    glOrthof(0, screen_width, 0, screen_height, near, far);
-//    glMultMatrixf(calibrator->persMat);
+    glOrthof(0, width, 0, height, near, far);
+    glMultMatrixf(calibrator->persMat);
     
     bool found = false;
     
@@ -229,16 +237,17 @@ void drawAxes(float length)
             //use intrinsic parameters to solve pnp and rodrigues
             //this should give us extrinsic parameters
             [calibrator solvePnPRodrigues];
-                        
+            
             //load in our transformed matrix
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-            
-            
-            
-            [self gluLookAt:0 :0 :0 :0 :0 :0 :0 :1 :0];
-//            [calibrator loadMatrix];
             glPushMatrix();
+            
+//            [self gluLookAt:0 :0 :near :0 :0 :0 :0 :1 :0];
+            
+            [calibrator loadMatrix];
+            
+            
             
             glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
             glEnableClientState(GL_VERTEX_ARRAY);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1108" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -29,9 +29,8 @@
                             <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cVf-Kc-z0p">
                                 <rect key="frame" x="31" y="44" width="315" height="603"/>
                             </imageView>
-                            <glkView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" fixedFrame="YES" enableSetNeedsDisplay="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zzk-Lf-gpO">
-                                <rect key="frame" x="31" y="21" width="328" height="562"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <glkView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" misplaced="YES" enableSetNeedsDisplay="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zzk-Lf-gpO">
+                                <rect key="frame" x="22.806179775222063" y="52.990168539343813" width="328.00000000000006" height="562"/>
                             </glkView>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BOT-kX-alw">
                                 <rect key="frame" x="83" y="581" width="212" height="46"/>
@@ -108,6 +107,7 @@
                             <constraint firstAttribute="trailing" secondItem="fqL-xD-s4l" secondAttribute="trailing" id="cWx-6z-MNv"/>
                             <constraint firstAttribute="trailing" secondItem="cVf-Kc-z0p" secondAttribute="trailing" constant="20" id="ePA-p7-FsM"/>
                             <constraint firstItem="cVf-Kc-z0p" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="fDA-PO-fEj"/>
+                            <constraint firstItem="Zzk-Lf-gpO" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="g6j-4s-Mv5"/>
                             <constraint firstAttribute="bottom" secondItem="fqL-xD-s4l" secondAttribute="bottom" id="gjh-17-Vsa"/>
                             <constraint firstItem="AQI-68-I7W" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="hax-We-23M"/>
                             <constraint firstItem="fqL-xD-s4l" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="i8q-Hr-qdC"/>

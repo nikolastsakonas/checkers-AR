@@ -236,10 +236,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     }
     
     func initializeOpenGL() {
-        let x = (playingLayer.bounds.height - imageSize.height) / 2.0
-        let y = (playingLayer.bounds.width - imageSize.width) / 2.0
-
-        glkView.frame = CGRect(x: x, y: y, width: imageSize.height, height: imageSize.width)
+        let x = (playingLayer.bounds.width - imageSize.width) / 2.0
+        let y = (playingLayer.bounds.height - imageSize.height) / 2.0
+        
+        print(x);
+        print(y)
+        
+        glkView.frame = CGRect(x: x, y: y, width: imageSize.width, height: imageSize.height)
         
         openGL = calibrator.initializeOpenGL()
         openGL.setView(self.glkView)
@@ -256,7 +259,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         glkView.bindDrawable()
         glkView.isOpaque = false
         
-        openGL.setParams(effect, cont: glkView.context, width: Double(glkView.bounds.height), height: Double(glkView.bounds.width))
+        openGL.setParams(effect, cont: glkView.context, width: Double(imageSize.width), height: Double(imageSize.height), x: Double(x), y: Double(y))
     }
     
     func glkView(_ view: GLKView, drawIn rect: CGRect) {
