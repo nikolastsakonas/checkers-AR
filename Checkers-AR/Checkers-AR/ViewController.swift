@@ -235,6 +235,12 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         }
     }
     
+    func tapOnGLKView(_ touch:UITapGestureRecognizer) {
+        let point = touch.location(in: self.glkView)
+        openGL.tap(onScreen: Float(point.x), Float(point.y))
+//        print("x: \(point.x) y: \(point.y)")
+    }
+    
     func initializeOpenGL() {
         let x = (playingLayer.bounds.width - imageSize.width) / 2.0
         let y = (playingLayer.bounds.height - imageSize.height) / 2.0
@@ -258,6 +264,10 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         glkView.drawableMultisample = GLKViewDrawableMultisample.multisampleNone
         glkView.bindDrawable()
         glkView.isOpaque = false
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.tapOnGLKView(_:)))
+        tap.numberOfTapsRequired = 1
+        glkView.addGestureRecognizer(tap)
         
         openGL.setParams(effect, cont: glkView.context, width: Double(imageSize.width), height: Double(imageSize.height))
     }

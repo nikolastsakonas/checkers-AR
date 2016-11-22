@@ -22,11 +22,13 @@
 - (UIImage *) drawObjects: (UIImage *) image :(int*) isFound;
 -(void) setView: (GLKView *) view;
 -(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height;
+-(void) tapOnScreen:(float)x :(float) y;
 
 typedef struct checker {
     double x;
     double y;
     int color;
+    bool selected;
 } checkerPiece;
 
 @end

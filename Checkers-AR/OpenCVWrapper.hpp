@@ -21,6 +21,13 @@
 -(void) loadMatrix;
 -(UIImage *) flipImage: (UIImage *) image1;
 -(UIImage *) drawCorners;
+-(bool) findPlaceOnCheckerboard:(float)xx :(float)yy :(int*)objx :(int*)objy ;
 -(OpenGLWrapper *) initializeOpenGL;
 
+typedef struct b {
+    float x;
+    float y;
+    float boardX;
+    float boardY;
+}BoardCorners;
 @end

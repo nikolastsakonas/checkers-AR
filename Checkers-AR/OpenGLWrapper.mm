@@ -38,43 +38,50 @@
     prevTimeStamp = 0;
     
     std::cout << "width is " << width << " and height is " << height << std::endl;
-
-    glBindRenderbuffer(GL_RENDERBUFFER, viewRenderBuffer);
+    if(!viewRenderBuffer)
+        glBindRenderbuffer(GL_RENDERBUFFER, viewRenderBuffer);
     [self initializeCheckerPieces];
 //    [self createFramebuffer];
+}
+
+-(void) tapOnScreen:(float)xx :(float) yy {
+    int objx, objy;
+    
+    [calibrator findPlaceOnCheckerboard :xx :yy :&objx :&objy];
+    std::cout << objx << " , " << objy << std::endl;
 }
 
 - (void) initializeCheckerPieces {
     checkerPiece gray;
     checkerPiece red;
     for(int i = 0; i < 4; i++) {
-        gray.x = -1 + i*2;
-        gray.y = -1;
+        gray.x = i*2;
+        gray.y = 0;
         gray.color = 0;
-        red.x = -1 + i*2;
-        red.y = 7;
+        red.x = i*2;
+        red.y = 8;
         red.color = 1;
         redPieces.push_back(red);
         grayPieces.push_back(gray);
     }
     
     for(int i = 0; i < 3; i++) {
-        gray.x = i*2;
-        gray.y = 0;
+        gray.x = i*2 + 1;
+        gray.y = 1;
         gray.color = 0;
-        red.x = i*2;
-        red.y = 6;
+        red.x = i*2 + 1;
+        red.y = 7;
         red.color = 1;
         redPieces.push_back(red);
         grayPieces.push_back(gray);
     }
     
     for(int i = 0; i < 4; i++) {
-        gray.x = -1 + i*2;
-        gray.y = 1;
+        gray.x = i*2;
+        gray.y = 2;
         gray.color = 0;
-        red.x = -1 + i*2;
-        red.y = 5;
+        red.x = i*2;
+        red.y = 6;
         red.color = 1;
         redPieces.push_back(red);
         grayPieces.push_back(gray);
@@ -155,8 +162,8 @@ void drawAxes(float length)
     for(z = 0; z > -0.5; z-=0.1) {
         glTranslatef(0, 0, z);
         for (int i = 0; i < 720; i += 2) {
-            vertice[i]   = (GLfloat)(cos(DEGREES_TO_RADIANS(i)) * 0.38) + piece.x + 0.5;
-            vertice[i+1] = (GLfloat)(sin(DEGREES_TO_RADIANS(i)) * 0.38) + piece.y + 0.5;
+            vertice[i]   = (GLfloat)(cos(DEGREES_TO_RADIANS(i)) * 0.38) + piece.x - 0.5;
+            vertice[i+1] = (GLfloat)(sin(DEGREES_TO_RADIANS(i)) * 0.38) + piece.y - 0.5;
         }
         
         if(piece.color == 0) {
@@ -200,7 +207,7 @@ void drawAxes(float length)
             
             *isFound = 1;
             //for debugging
-            //            image = [ calibrator drawCorners ];
+            image = [ calibrator drawCorners ];
             
             //use intrinsic parameters to solve pnp and rodrigues
             //this should give us extrinsic parameters
@@ -213,13 +220,13 @@ void drawAxes(float length)
             
             [calibrator loadMatrix];
             
-            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
-                [self drawCheckerPiece :grayPieces.at(i)];
-            }
-            
-            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
-                [self drawCheckerPiece :redPieces.at(i)];
-            }
+//            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
+//                [self drawCheckerPiece :grayPieces.at(i)];
+//            }
+//            
+//            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
+//                [self drawCheckerPiece :redPieces.at(i)];
+//            }
             
             drawAxes(2);
             
@@ -228,7 +235,6 @@ void drawAxes(float length)
             glPopMatrix();
         }
     }
-    
     return image;
 }
 

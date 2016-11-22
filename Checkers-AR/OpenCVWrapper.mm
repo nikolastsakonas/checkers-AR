@@ -9,7 +9,7 @@
 #import "OpenCVWrapper.hpp"
 #include <opencv2/opencv.hpp>
 #import <opencv2/imgcodecs/ios.h>
-
+#define TOUCH_DISTANCE 10
 
 //unfortunately need to do this to hide all opencv calls from swift
 //otherwise I would put these in .hpp
@@ -26,10 +26,12 @@
     cv::Point2d principalPoint;
     double fx, fy, cx, cy;
     double d0, d1, d2, d3;
+    float circlex, circley;
     bool wait;
     std::vector<cv::Point3f> objectCoordinates;
     cv::Mat TMat;
     std::vector<cv::Point2f> currentCorners;
+    std::vector<BoardCorners> boardCorners;
     cv::Mat currentImage;
 }
 
@@ -67,6 +69,25 @@
             }
         }
         
+        for( int i = 0; i < 5; ++i ) {
+            for(int j = 0; j < 4; j++) {
+                BoardCorners b;
+                b.boardX = j*2;
+                b.boardY = i*2;
+                std::cout << "pushing back " << b.boardX << " , " << b.boardY << std::endl;
+                boardCorners.push_back(b);
+            }
+            if(i != 4) {
+                for(int k =0; k < 3; k++) {
+                    BoardCorners b;
+                    b.boardX = k*2 + 1;
+                    b.boardY = i*2 + 1;
+                    std::cout << "pushing back " << b.boardX << " , " << b.boardY << std::endl;
+                    boardCorners.push_back(b);
+                }
+            }
+        }
+        
         for( int i = 0; i < 16; i ++ ) {
             persMat[i] = 0;
         }
@@ -82,18 +103,179 @@
 -(UIImage *) drawCorners {
     cv::Mat image = currentImage;
     
-    cv::drawChessboardCorners(image, boardSize, currentCorners, true);
-    cv::circle(image, cv::Point(0,0), 10, cv::Scalar(1,0,0,1));
+//    cv::drawChessboardCorners(image, boardSize, currentCorners, true);
+    cv::circle(image, cv::Point(circlex,circley), 10, cv::Scalar(255,0,0,1));
     
+    for(int i = 0; i < boardCorners.size(); i++) {
+        cv::Point2f point = cv::Point(boardCorners[i].x, boardCorners[i].y);
+        cv::circle(image, cv::Point(point.x,point.y), 10, cv::Scalar(255,0,255,1), -1);
+    }
     
-    cv::Point point; point.x = 0; point.y = 10;
-    
-    cv::circle(image, point, 10, cv::Scalar(1,0,0,1));
     
     cv::cvtColor(image, image, CV_BGR2RGB);
     return MatToUIImage(image);
 }
 
+bool withinRange(float x1, float x2, float y1, float y2) {
+    bool range = false;
+    
+    double r1 = cv::abs(x1 - x2);
+    double r2 = cv::abs(y1 - y2);
+    double dist;
+    dist = sqrt(pow(r1,2) + pow(r2,2));
+    if(dist < TOUCH_DISTANCE) {
+        range = true;
+    }
+    return range;
+}
+
+-(bool) findPlaceOnCheckerboard:(float)xx :(float)yy :(int*)objx :(int*)objy{
+    
+    circlex = xx;
+    circley = yy;
+    int xBoard, yBoard;
+    
+    for(int i = 0; i < boardCorners.size(); i++) {
+        cv::Point2f point = cv::Point(boardCorners[i].x, boardCorners[i].y);
+
+        if(withinRange(xx, point.x, yy, point.y)) {
+            xBoard = boardCorners.at(i).boardX;
+            yBoard = boardCorners.at(i).boardY;
+
+            *objx = xBoard;
+            *objy = yBoard;
+        }
+    }
+    
+    
+    return true;
+}
+
+- (void) createBoardFromCorners {
+    int index = 0;
+    for(int i = 0; i < currentCorners.size(); i++) {
+        cv::Point2f cornerPoint;
+        cv::Point2f cornerPoint2;
+        float amountx;
+        float amounty;
+        cornerPoint = currentCorners.at(i);
+        cv::Point2f boardPoint;
+        
+        if(i == 0 || i == 12 || i == 24 || i == 36 || i == 48) {
+            cornerPoint2 = i != currentCorners.size() - 1 ? currentCorners.at(i + 1) : currentCorners.at(i - 1);
+        } else {
+            cornerPoint2 = currentCorners.at(i - 1);
+        }
+        if(i % 2 == 0) {
+            if(i < 6) {
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x - amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i < 12) {
+                cornerPoint2 = i != currentCorners.size() - 1 ? currentCorners.at(i + 1) : currentCorners.at(i - 1);
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x + amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i < 18) {
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x - amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i < 24) {
+                cornerPoint2 = i != currentCorners.size() - 1 ? currentCorners.at(i + 1) : currentCorners.at(i - 1);
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x + amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i < 30) {
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x - amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i < 36) {
+                cornerPoint2 = i != currentCorners.size() - 1 ? currentCorners.at(i + 1) : currentCorners.at(i - 1);
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x + amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i < 42) {
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x - amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i < 48) {
+                cornerPoint2 = i != currentCorners.size() - 1 ? currentCorners.at(i + 1) : currentCorners.at(i - 1);
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x + amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+                
+                if( i == 42) {
+                    cornerPoint2 = i != currentCorners.size() - 1 ? currentCorners.at(i + 1) : currentCorners.at(i - 1);
+                    amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                    amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                    boardPoint.x = cornerPoint.x - amountx;
+                    boardPoint.y = cornerPoint.y + amountx;
+                    boardCorners.at(28).x = boardPoint.x;
+                    boardCorners.at(28).y = boardPoint.y;
+                } else if( i == 44 ) {
+                    cornerPoint2 = currentCorners.at(i - 1);
+                    amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                    amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                    boardPoint.x = cornerPoint.x - amountx;
+                    boardPoint.y = cornerPoint.y + amountx;
+                    boardCorners.at(29).x = boardPoint.x;
+                    boardCorners.at(29).y = boardPoint.y;
+                } else if( i == 46 ) {
+                    cornerPoint2 = currentCorners.at(i - 1);
+                    amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                    amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                    boardPoint.x = cornerPoint.x - amountx;
+                    boardPoint.y = cornerPoint.y + amountx;
+                    boardCorners.at(30).x = boardPoint.x;
+                    boardCorners.at(30).y = boardPoint.y;
+                }
+                
+            }
+        } else {
+            if(i == 5 || i == 17 || i == 29 || i == 41) {
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x + amountx;
+                boardPoint.y = cornerPoint.y - amountx;
+                
+                boardCorners.at(index).x = boardPoint.x;
+                boardCorners.at(index++).y = boardPoint.y;
+            } else if(i == 47) {
+                amountx = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                amounty = cv::abs(cornerPoint.x - cornerPoint2.x)/2.0;
+                boardPoint.x = cornerPoint.x + amountx;
+                boardPoint.y = cornerPoint.y + amountx;
+                boardCorners.at(31).x = boardPoint.x;
+                boardCorners.at(31).y = boardPoint.y;
+            }
+        }
+
+    }
+}
 
 -(bool) findChessboardCornersPlaying:(UIImage*) image1 {
     cv::Mat image, tempView;
@@ -103,6 +285,7 @@
 
     int found = cv::findChessboardCorners(image, boardSize, currentCorners, CV_CALIB_CB_ADAPTIVE_THRESH);
     
+    [self createBoardFromCorners];
     currentImage = image.clone();
     return found;
 }
