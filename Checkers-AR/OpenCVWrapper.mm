@@ -9,7 +9,7 @@
 #import "OpenCVWrapper.hpp"
 #include <opencv2/opencv.hpp>
 #import <opencv2/imgcodecs/ios.h>
-#define TOUCH_DISTANCE 10
+#define TOUCH_DISTANCE 12
 
 //unfortunately need to do this to hide all opencv calls from swift
 //otherwise I would put these in .hpp
@@ -100,19 +100,41 @@
     return self;
 }
 
+-(UIImage *) drawTurnRectangle :(int) turn {
+    cv::Mat image = currentImage;
+    
+    cv::Rect rect1;
+    cv::Scalar col;
+    rect1.x = 10;
+    rect1.y = 10;
+    rect1.width = 50;
+    rect1.height = 50;
+    switch(turn) {
+        case 0:
+            col = cv::Scalar(178, 178, 178);
+            break;
+        default:
+            col = cv::Scalar(0, 0, 255);
+    }
+    cv::rectangle(image, rect1, col, -1);
+    
+    cv::cvtColor(image, image, CV_BGR2RGB);
+    return MatToUIImage(image);
+}
+
 -(UIImage *) drawCorners {
     cv::Mat image = currentImage;
     
 //    cv::drawChessboardCorners(image, boardSize, currentCorners, true);
-    cv::circle(image, cv::Point(circlex,circley), 10, cv::Scalar(255,0,0,1));
+    cv::circle(image, cv::Point(circlex,circley), 10, cv::Scalar(255,0,0,1), -1);
     
-    for(int i = 0; i < boardCorners.size(); i++) {
-        cv::Point2f point = cv::Point(boardCorners[i].x, boardCorners[i].y);
-        cv::circle(image, cv::Point(point.x,point.y), 10, cv::Scalar(255,0,255,1), -1);
-    }
+//    for(int i = 0; i < boardCorners.size(); i++) {
+//        cv::Point2f point = cv::Point(boardCorners[i].x, boardCorners[i].y);
+//        cv::circle(image, cv::Point(point.x,point.y), 10, cv::Scalar(255,0,255,1), -1);
+//    }
     
     
-    cv::cvtColor(image, image, CV_BGR2RGB);
+//    cv::cvtColor(image, image, CV_BGR2RGB);
     return MatToUIImage(image);
 }
 

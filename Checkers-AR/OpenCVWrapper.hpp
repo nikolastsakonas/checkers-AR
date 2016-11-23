@@ -22,6 +22,7 @@
 -(UIImage *) drawCorners;
 -(bool) findPlaceOnCheckerboard:(float)xx :(float)yy :(int*)objx :(int*)objy ;
 -(OpenGLWrapper *) initializeOpenGL;
+-(UIImage *) drawTurnRectangle :(int) turn;
 
 typedef struct b {
     float x;

@@ -25,6 +25,8 @@
     clock_t prevTimeStamp;
     std::vector<checkerPiece> grayPieces;
     std::vector<checkerPiece> redPieces;
+    int pieceSelectedIndex;
+    int turn;
 }
 
 -(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height {
@@ -36,7 +38,9 @@
     
     wait = false;
     prevTimeStamp = 0;
-    
+    pieceSelectedIndex = -1;
+    //grey begins
+    turn = 0;
     std::cout << "width is " << width << " and height is " << height << std::endl;
     if(!viewRenderBuffer)
         glBindRenderbuffer(GL_RENDERBUFFER, viewRenderBuffer);
@@ -44,13 +48,79 @@
 //    [self createFramebuffer];
 }
 
+-(void) selectPiece:(float) objx :(float) objy {
+    checkerPiece *piece;
+    std::vector<checkerPiece> *it;
+    
+    if(turn == 0) {
+        it = &grayPieces;
+    } else {
+        it = &redPieces;
+    }
+    
+    for(int i = 0; i < it->size(); i++) {
+        piece = &(it->at(i));
+        if(piece->x == objx && piece->y == objy) {
+            if(piece->selected) {
+                piece->selected = false;
+                pieceSelectedIndex = -1;
+            } else if(pieceSelectedIndex == -1) {
+                piece->selected = true;
+                pieceSelectedIndex = i;
+            }
+            break;
+        }
+    }
+}
+
 -(void) tapOnScreen:(float)xx :(float) yy {
     int objx, objy;
     bool found;
-    
+    checkerPiece *piece;
     found = [calibrator findPlaceOnCheckerboard :xx :yy :&objx :&objy];
     if(found) {
         std::cout << objx << " , " << objy << std::endl;
+
+        [self selectPiece :objx :objy];
+        
+        if(pieceSelectedIndex != -1) {
+            bool occupied = false;
+            
+            for(int i = 0; i < redPieces.size(); i++) {
+                piece = &redPieces.at(i);
+                if(piece->x == objx && piece->y == objy) {
+                    occupied = true;
+                    break;
+                }
+            }
+            for(int i = 0; i < grayPieces.size(); i++) {
+                piece = &grayPieces.at(i);
+                if(piece->x == objx && piece->y == objy) {
+                    occupied = true;
+                    break;
+                }
+            }
+            if(!occupied) {
+                switch(turn) {
+                    case 0:
+                        piece = &grayPieces.at(pieceSelectedIndex);
+                        piece->x = objx;
+                        piece->y = objy;
+                        piece->selected = false;
+                        pieceSelectedIndex = -1;
+                        turn = 1;
+                        break;
+                    default:
+                        piece = &redPieces.at(pieceSelectedIndex);
+                        piece->x = objx;
+                        piece->y = objy;
+                        piece->selected = false;
+                        pieceSelectedIndex = -1;
+                        turn = 0;
+                }
+            }
+        }
+        
     }
 }
 
@@ -61,9 +131,11 @@
         gray.x = i*2;
         gray.y = 0;
         gray.color = 0;
+        gray.selected = false;
         red.x = i*2;
         red.y = 8;
         red.color = 1;
+        red.selected = false;
         redPieces.push_back(red);
         grayPieces.push_back(gray);
     }
@@ -162,14 +234,17 @@ void drawAxes(float length)
 - (void) drawCheckerPiece: (checkerPiece) piece {
     GLfloat vertice[720];
     double z;
+    
+
     for(z = 0; z > -0.5; z-=0.1) {
         glTranslatef(0, 0, z);
         for (int i = 0; i < 720; i += 2) {
             vertice[i]   = (GLfloat)(cos(DEGREES_TO_RADIANS(i)) * 0.38) + piece.x - 0.5;
             vertice[i+1] = (GLfloat)(sin(DEGREES_TO_RADIANS(i)) * 0.38) + piece.y - 0.5;
         }
-        
-        if(piece.color == 0) {
+        if(piece.selected && z == 0) {
+            glColor4f(0, 1, 1, 1.0f);
+        } else if(piece.color == 0) {
             glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
         } else {
             glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
@@ -208,7 +283,10 @@ void drawAxes(float length)
         } else {
             
             *isFound = 1;
-            //for debugging
+            
+            image = [ calibrator drawTurnRectangle :turn];
+            
+            //  for debugging
 //            image = [ calibrator drawCorners ];
             
             //use intrinsic parameters to solve pnp and rodrigues
@@ -230,7 +308,8 @@ void drawAxes(float length)
                 [self drawCheckerPiece :redPieces.at(i)];
             }
             
-            drawAxes(2);
+            
+//            drawAxes(2);
             
             
             [context presentRenderbuffer:GL_RENDERBUFFER];
