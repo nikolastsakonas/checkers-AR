@@ -12,7 +12,6 @@
     @public float persMat[16];
 }
 -(void) finishCalibration;
--(UIImage *) makeMatFromImage: (UIImage *) image;
 -(UIImage *) findChessboardCorners:(UIImage *) image1;
 -(bool) findChessboardCornersPlaying:(UIImage *) image1;
 -(void) solvePnPRodrigues;

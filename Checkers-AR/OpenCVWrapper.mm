@@ -134,7 +134,7 @@ bool withinRange(float x1, float x2, float y1, float y2) {
     circlex = xx;
     circley = yy;
     int xBoard, yBoard;
-    
+    bool found = false;
     for(int i = 0; i < boardCorners.size(); i++) {
         cv::Point2f point = cv::Point(boardCorners[i].x, boardCorners[i].y);
 
@@ -144,11 +144,12 @@ bool withinRange(float x1, float x2, float y1, float y2) {
 
             *objx = xBoard;
             *objy = yBoard;
+            found = true;
         }
     }
     
     
-    return true;
+    return found;
 }
 
 - (void) createBoardFromCorners {
@@ -366,7 +367,7 @@ bool withinRange(float x1, float x2, float y1, float y2) {
         imageSize = image.size();
         cv::Mat tempView;
         cvtColor(image, tempView, cv::COLOR_BGR2GRAY);
-        cornerSubPix( tempView, corners, cv::Size(3,3),
+        cornerSubPix( tempView, corners, cv::Size(4,3),
                      cv::Size(-1,-1), cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1));
         
         imagePoints.push_back(corners);

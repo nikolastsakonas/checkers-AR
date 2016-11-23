@@ -46,9 +46,12 @@
 
 -(void) tapOnScreen:(float)xx :(float) yy {
     int objx, objy;
+    bool found;
     
-    [calibrator findPlaceOnCheckerboard :xx :yy :&objx :&objy];
-    std::cout << objx << " , " << objy << std::endl;
+    found = [calibrator findPlaceOnCheckerboard :xx :yy :&objx :&objy];
+    if(found) {
+        std::cout << objx << " , " << objy << std::endl;
+    }
 }
 
 - (void) initializeCheckerPieces {
@@ -189,7 +192,6 @@ void drawAxes(float length)
     //set the viewport
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     
@@ -207,7 +209,7 @@ void drawAxes(float length)
             
             *isFound = 1;
             //for debugging
-            image = [ calibrator drawCorners ];
+//            image = [ calibrator drawCorners ];
             
             //use intrinsic parameters to solve pnp and rodrigues
             //this should give us extrinsic parameters
@@ -220,13 +222,13 @@ void drawAxes(float length)
             
             [calibrator loadMatrix];
             
-//            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
-//                [self drawCheckerPiece :grayPieces.at(i)];
-//            }
-//            
-//            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
-//                [self drawCheckerPiece :redPieces.at(i)];
-//            }
+            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
+                [self drawCheckerPiece :grayPieces.at(i)];
+            }
+            
+            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
+                [self drawCheckerPiece :redPieces.at(i)];
+            }
             
             drawAxes(2);
             
