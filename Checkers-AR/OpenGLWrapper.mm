@@ -26,6 +26,8 @@
     std::vector<checkerPiece> grayPieces;
     std::vector<checkerPiece> redPieces;
     int pieceSelectedIndex;
+    checkerPiece selectedPiece;
+    std::vector<validMove> moves;
     int turn;
 }
 
@@ -48,6 +50,151 @@
 //    [self createFramebuffer];
 }
 
+-(void) getValidForwardMoves {
+    bool occupied = false;
+    double newCoorX = 0;
+    double newCoorY = 0;
+    double diagonalX = -1;
+    double diagonalY = -1;
+    checkerPiece *piece;
+    validMove move;
+    for (int i = 0; i < 2; i++) {
+        newCoorX = diagonalX + selectedPiece.x;
+        newCoorY = diagonalY + selectedPiece.y;
+        if (newCoorX >= 0 && newCoorX <= 6 && newCoorY >= 0 && newCoorY <= 8) {
+            for(int i = 0; i < redPieces.size(); i++) {
+                piece = &redPieces.at(i);
+                if(piece->x == newCoorX && piece->y == newCoorY) {
+                    occupied = true;
+                    break;
+                }
+            }
+            for(int i = 0; i < grayPieces.size(); i++) {
+                piece = &grayPieces.at(i);
+                if(piece->x == newCoorX && piece->y == newCoorY) {
+                    occupied = true;
+                    break;
+                }
+            }
+            if (!occupied) {
+                move.x = newCoorX;
+                move.y = newCoorY;
+                move.checkersJumped = 0;
+                moves.push_back(move);
+            }
+        }
+        occupied = false;
+        diagonalX = 1;
+    }
+}
+
+//func getValidBackwardJumpMoves(x: Int, y: Int)-> [(Int,Int,Int)]{
+//    var newCoorX = 0
+//    var newCoorY = 0
+//    var moves:[(x: Int, y: Int, checkersJumped: Int)] = []
+//    var diagonals:[(x: Int, y: Int)] = [(x:-1, y:1), (x:1, y:1)]
+//    for diagonal in diagonals {
+//        newCoorX = diagonal.x + selectedPiece.x
+//        newCoorY = diagonal.y + selectedPiece.y
+//        if (newCoorX < 0 || newCoorX > 6 || newCoorX < 0 || newCoorY > 8) {
+//            continue
+//        }
+//        else {
+//            if (board(newCoorX,newCoorY) == 1) {            //1 is opponent
+//                newCoorX = diagonal.x + comp.x
+//                newCoorY = diagonal.y + comp.y
+//                if (board(newCoorX,newCoorY) == 0) {        //0 is empty
+//                    moves.append((x:newCoorX, y:newCoorY, checkersJumped:1))
+//                }
+//            }
+//        }
+//    }
+//    return moves
+//}
+//
+//func getValidForwardMoves()-> [(Int,Int,Int)]{
+//    var newCoorX = 0
+//    var newCoorY = 0
+//    var moves:[(x: Int, y: Int, checkersJumped: Int)] = []
+//    var diagonals:[(x: Int, y: Int)] = [(x:-1, y:1), (x:1, y:1)]
+//    for diagonal in diagonals {
+//        newCoorX = diagonal.x + comp.x
+//        newCoorY = diagonal.y + comp.y
+//        if (newCoorX < 0 || newCoorX > 7 || newCoorX < 0 || newCoorY > 7) {
+//            continue
+//        }
+//        else {
+//            if (board(newCoorX,newCoorY) == 0) {
+//                moves.append((x:newCoorX, y:newCoorY, checkersJumped: 0))
+//            }
+//        }
+//    }
+//    //add in forward jump moves to list of valid moves
+//    var jumpMoves = getValidForwardJumpMoves(x: comp.x, y: comp.y)
+//    return moves
+//}
+
+-(void) getValidBackwardMoves{
+    bool occupied = false;
+    double newCoorX = 0;
+    double newCoorY = 0;
+    double diagonalX = -1;
+    double diagonalY = 1;
+    checkerPiece *piece;
+    validMove move;
+    for (int i = 0; i < 2; i++) {
+        newCoorX = diagonalX + selectedPiece.x;
+        newCoorY = diagonalY + selectedPiece.y;
+        if (newCoorX >= 0 && newCoorX <= 6 && newCoorY >= 0 && newCoorY <= 8) {
+            for(int i = 0; i < redPieces.size(); i++) {
+                piece = &redPieces.at(i);
+                if(piece->x == newCoorX && piece->y == newCoorY) {
+                    occupied = true;
+                    break;
+                }
+            }
+            for(int i = 0; i < grayPieces.size(); i++) {
+                piece = &grayPieces.at(i);
+                if(piece->x == newCoorX && piece->y == newCoorY) {
+                    occupied = true;
+                    break;
+                }
+            }
+            if (!occupied) {
+                move.x = newCoorX;
+                move.y = newCoorY;
+                move.checkersJumped = 0;
+                moves.push_back(move);
+            }
+        }
+        occupied = false;
+        diagonalX = 1;
+    }
+}
+
+-(bool) isValidMove:(float) objx :(float) objy {
+    moves.clear();
+    if (selectedPiece.crowned) {
+        [self getValidForwardMoves];
+        [self getValidBackwardMoves];
+    }
+    else if (turn) {
+        [self getValidForwardMoves];
+    } else {
+        [self getValidBackwardMoves];
+    }
+    validMove *move;
+    std::cout << "MOVES" << moves.size() << std::endl;
+    for (int i = 0; i < moves.size(); i++) {
+        move = &moves.at(i);
+        std::cout << move->x << " , " << move->y << std::endl;
+        if (move->x == objx && move->y == objy) {
+            return true;
+        }
+    }
+    return false;
+}
+
 -(void) selectPiece:(float) objx :(float) objy {
     checkerPiece *piece;
     std::vector<checkerPiece> *it;
@@ -64,9 +211,15 @@
             if(piece->selected) {
                 piece->selected = false;
                 pieceSelectedIndex = -1;
+                selectedPiece.x = -1;
+                selectedPiece.y = -1;
+                selectedPiece.crowned = false;
             } else if(pieceSelectedIndex == -1) {
                 piece->selected = true;
                 pieceSelectedIndex = i;
+                selectedPiece.x = piece->x;
+                selectedPiece.y = piece->y;
+                selectedPiece.crowned = piece->crowned;
             }
             break;
         }
@@ -77,6 +230,7 @@
     int objx, objy;
     bool found;
     checkerPiece *piece;
+    int isValid = false;
     found = [calibrator findPlaceOnCheckerboard :xx :yy :&objx :&objy];
     if(found) {
         std::cout << objx << " , " << objy << std::endl;
@@ -100,7 +254,10 @@
                     break;
                 }
             }
-            if(!occupied) {
+            isValid = [self isValidMove :objx :objy];
+            if (isValid) std::cout << "true" << std::endl;
+            else std::cout << "false" << std::endl;
+            if(!occupied && isValid) {
                 switch(turn) {
                     case 0:
                         piece = &grayPieces.at(pieceSelectedIndex);
@@ -109,6 +266,9 @@
                         piece->selected = false;
                         pieceSelectedIndex = -1;
                         turn = 1;
+                        if (objy == 8) {
+                            piece->crowned = true;
+                        }
                         break;
                     default:
                         piece = &redPieces.at(pieceSelectedIndex);
@@ -117,6 +277,9 @@
                         piece->selected = false;
                         pieceSelectedIndex = -1;
                         turn = 0;
+                        if (objy == 0) {
+                            piece->crowned = true;
+                        }
                 }
             }
         }
@@ -132,10 +295,12 @@
         gray.y = 0;
         gray.color = 0;
         gray.selected = false;
+        gray.crowned = false;
         red.x = i*2;
         red.y = 8;
         red.color = 1;
         red.selected = false;
+        red.crowned = false;
         redPieces.push_back(red);
         grayPieces.push_back(gray);
     }
@@ -144,9 +309,11 @@
         gray.x = i*2 + 1;
         gray.y = 1;
         gray.color = 0;
+        gray.crowned = false;
         red.x = i*2 + 1;
         red.y = 7;
         red.color = 1;
+        red.crowned = false;
         redPieces.push_back(red);
         grayPieces.push_back(gray);
     }
@@ -155,9 +322,11 @@
         gray.x = i*2;
         gray.y = 2;
         gray.color = 0;
+        gray.crowned = false;
         red.x = i*2;
         red.y = 6;
         red.color = 1;
+        red.crowned = false;
         redPieces.push_back(red);
         grayPieces.push_back(gray);
     }

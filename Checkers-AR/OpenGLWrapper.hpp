@@ -18,10 +18,15 @@
     GLuint _colorRenderBuffer;
 }
 
+
+
 -(void) initOpenGL: (void*)opencv;
 - (UIImage *) drawObjects: (UIImage *) image :(int*) isFound;
 -(void) setView: (GLKView *) view;
 -(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height;
+-(void) getValidForwardMoves;
+-(void) getValidBackwardMoves;
+-(bool) isValidMove:(float) objx :(float) objy;
 -(void) tapOnScreen:(float)x :(float) y;
 
 typedef struct checker {
@@ -29,6 +34,13 @@ typedef struct checker {
     double y;
     int color;
     bool selected;
+    bool crowned;
 } checkerPiece;
+
+typedef struct move {
+    double x;
+    double y;
+    int checkersJumped;
+} validMove;
 
 @end
