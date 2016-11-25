@@ -29,6 +29,8 @@
     checkerPiece selectedPiece;
     std::vector<validMove> moves;
     int turn;
+    int erasedCheckerIndex;
+    bool jump;
 }
 
 -(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height {
@@ -48,6 +50,67 @@
         glBindRenderbuffer(GL_RENDERBUFFER, viewRenderBuffer);
     [self initializeCheckerPieces];
 //    [self createFramebuffer];
+}
+
+-(void) getValidForwardJumpMoves{
+    bool occupiedByOpp = false;
+    bool occupied = false;
+    double newCoorX = 0;
+    double newCoorY = 0;
+    double diagonalX = -1;
+    double diagonalY = -1;
+    checkerPiece *piece;
+    validMove move;
+    for (int i = 0; i < 2; i++) {
+        newCoorX = diagonalX + selectedPiece.x;
+        newCoorY = diagonalY + selectedPiece.y;
+        if (newCoorX >= 0 && newCoorX <= 6 && newCoorY >= 0 && newCoorY <= 8) {
+            if (!turn) {
+                for(int j = 0; j < redPieces.size(); j++) {
+                    piece = &redPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupiedByOpp = true;
+                        break;
+                    }
+                }
+            } else {
+                for(int j = 0; j < grayPieces.size(); j++) {
+                    piece = &grayPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupiedByOpp = true;
+                        break;
+                    }
+                }
+            }
+            if (occupiedByOpp) {
+                newCoorX = diagonalX + newCoorX;
+                newCoorY = diagonalY + newCoorY;
+                for(int j = 0; j < redPieces.size(); j++) {
+                    piece = &redPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                for(int j = 0; j < grayPieces.size(); j++) {
+                    piece = &grayPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if (!occupied) {
+                    move.x = newCoorX;
+                    move.y = newCoorY;
+                    move.checkersJumped = 1;
+                    moves.push_back(move);
+                }
+            }
+        }
+        occupied = false;
+        occupiedByOpp = false;
+        diagonalX = 1;
+    }
 }
 
 -(void) getValidForwardMoves {
@@ -88,51 +151,67 @@
     }
 }
 
-//func getValidBackwardJumpMoves(x: Int, y: Int)-> [(Int,Int,Int)]{
-//    var newCoorX = 0
-//    var newCoorY = 0
-//    var moves:[(x: Int, y: Int, checkersJumped: Int)] = []
-//    var diagonals:[(x: Int, y: Int)] = [(x:-1, y:1), (x:1, y:1)]
-//    for diagonal in diagonals {
-//        newCoorX = diagonal.x + selectedPiece.x
-//        newCoorY = diagonal.y + selectedPiece.y
-//        if (newCoorX < 0 || newCoorX > 6 || newCoorX < 0 || newCoorY > 8) {
-//            continue
-//        }
-//        else {
-//            if (board(newCoorX,newCoorY) == 1) {            //1 is opponent
-//                newCoorX = diagonal.x + comp.x
-//                newCoorY = diagonal.y + comp.y
-//                if (board(newCoorX,newCoorY) == 0) {        //0 is empty
-//                    moves.append((x:newCoorX, y:newCoorY, checkersJumped:1))
-//                }
-//            }
-//        }
-//    }
-//    return moves
-//}
-//
-//func getValidForwardMoves()-> [(Int,Int,Int)]{
-//    var newCoorX = 0
-//    var newCoorY = 0
-//    var moves:[(x: Int, y: Int, checkersJumped: Int)] = []
-//    var diagonals:[(x: Int, y: Int)] = [(x:-1, y:1), (x:1, y:1)]
-//    for diagonal in diagonals {
-//        newCoorX = diagonal.x + comp.x
-//        newCoorY = diagonal.y + comp.y
-//        if (newCoorX < 0 || newCoorX > 7 || newCoorX < 0 || newCoorY > 7) {
-//            continue
-//        }
-//        else {
-//            if (board(newCoorX,newCoorY) == 0) {
-//                moves.append((x:newCoorX, y:newCoorY, checkersJumped: 0))
-//            }
-//        }
-//    }
-//    //add in forward jump moves to list of valid moves
-//    var jumpMoves = getValidForwardJumpMoves(x: comp.x, y: comp.y)
-//    return moves
-//}
+
+-(void) getValidBackwardJumpMoves{
+    bool occupiedByOpp = false;
+    bool occupied = false;
+    double newCoorX = 0;
+    double newCoorY = 0;
+    double diagonalX = -1;
+    double diagonalY = 1;
+    checkerPiece *piece;
+    validMove move;
+    for (int i = 0; i < 2; i++) {
+        newCoorX = diagonalX + selectedPiece.x;
+        newCoorY = diagonalY + selectedPiece.y;
+        if (newCoorX >= 0 && newCoorX <= 6 && newCoorY >= 0 && newCoorY <= 8) {
+            if (!turn) {
+                for(int j = 0; j < redPieces.size(); j++) {
+                    piece = &redPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupiedByOpp = true;
+                        break;
+                    }
+                }
+            } else {
+                for(int j = 0; j < grayPieces.size(); j++) {
+                    piece = &grayPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupiedByOpp = true;
+                        break;
+                    }
+                }
+            }
+            if (occupiedByOpp) {
+                newCoorX = diagonalX + newCoorX;
+                newCoorY = diagonalY + newCoorY;
+                for(int j = 0; j < redPieces.size(); j++) {
+                    piece = &redPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                for(int j = 0; j < grayPieces.size(); j++) {
+                    piece = &grayPieces.at(j);
+                    if(piece->x == newCoorX && piece->y == newCoorY) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if (!occupied) {
+                    move.x = newCoorX;
+                    move.y = newCoorY;
+                    move.checkersJumped = 1;
+                    moves.push_back(move);
+                }
+            }
+        }
+        occupied = false;
+        occupiedByOpp = false;
+        diagonalX = 1;
+    }
+}
 
 -(void) getValidBackwardMoves{
     bool occupied = false;
@@ -173,22 +252,50 @@
 }
 
 -(bool) isValidMove:(float) objx :(float) objy {
+    checkerPiece *piece;
+    int jumpedX, jumpedY;
     moves.clear();
     if (selectedPiece.crowned) {
         [self getValidForwardMoves];
         [self getValidBackwardMoves];
+        [self getValidForwardJumpMoves];
+        [self getValidBackwardJumpMoves];
     }
     else if (turn) {
         [self getValidForwardMoves];
+        [self getValidForwardJumpMoves];
     } else {
         [self getValidBackwardMoves];
+        [self getValidBackwardJumpMoves];
     }
     validMove *move;
-    std::cout << "MOVES" << moves.size() << std::endl;
     for (int i = 0; i < moves.size(); i++) {
         move = &moves.at(i);
-        std::cout << move->x << " , " << move->y << std::endl;
         if (move->x == objx && move->y == objy) {
+            if (std::abs(objx - selectedPiece.x) == 2) {
+                if (objx < selectedPiece.x) jumpedX = objx + 1;
+                else  jumpedX = objx - 1;
+                if (objy < selectedPiece.y) jumpedY = objy + 1;
+                else jumpedY = objy - 1;
+                if (!turn) {
+                    for(int j = 0; j < redPieces.size(); j++) {
+                        piece = &redPieces.at(j);
+                        if(piece->x == jumpedX && piece->y == jumpedY) {
+                            erasedCheckerIndex = j;
+                            break;
+                        }
+                    }
+                } else {
+                    for(int j = 0; j < grayPieces.size(); j++) {
+                        piece = &grayPieces.at(j);
+                        if(piece->x == jumpedX && piece->y == jumpedY) {
+                            erasedCheckerIndex = j;
+                            break;
+                        }
+                    }
+                }
+                jump = true;
+            }
             return true;
         }
     }
@@ -258,6 +365,13 @@
             if (isValid) std::cout << "true" << std::endl;
             else std::cout << "false" << std::endl;
             if(!occupied && isValid) {
+                if (turn && jump) {
+                    grayPieces.erase(grayPieces.begin() + erasedCheckerIndex);
+                    jump = false;
+                } else if (!turn && jump){
+                    redPieces.erase(redPieces.begin() + erasedCheckerIndex);
+                    jump = false;
+                }
                 switch(turn) {
                     case 0:
                         piece = &grayPieces.at(pieceSelectedIndex);
@@ -469,11 +583,11 @@ void drawAxes(float length)
             
             [calibrator loadMatrix];
             
-            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
+            for(int i = 0; i < grayPieces.size(); i++) {
                 [self drawCheckerPiece :grayPieces.at(i)];
             }
             
-            for(int i = 0; i < NUM_CHECKER_PIECES; i++) {
+            for(int i = 0; i < redPieces.size(); i++) {
                 [self drawCheckerPiece :redPieces.at(i)];
             }
             
