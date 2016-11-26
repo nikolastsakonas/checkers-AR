@@ -32,6 +32,7 @@
     int erasedCheckerIndex;
     bool jump;
     bool jumpAvailable;
+    bool inContinuousJump;
 }
 
 -(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height {
@@ -381,11 +382,13 @@
         piece = &(it->at(i));
         if(piece->x == objx && piece->y == objy) {
             if(piece->selected) {
-                piece->selected = false;
-                pieceSelectedIndex = -1;
-                selectedPiece.x = -1;
-                selectedPiece.y = -1;
-                selectedPiece.crowned = false;
+                if (!inContinuousJump) {
+                    piece->selected = false;
+                    pieceSelectedIndex = -1;
+                    selectedPiece.x = -1;
+                    selectedPiece.y = -1;
+                    selectedPiece.crowned = false;
+                }
             } else if(pieceSelectedIndex == -1) {
                 piece->selected = true;
                 pieceSelectedIndex = i;
@@ -449,11 +452,13 @@
                             piece->selected = false;
                             pieceSelectedIndex = -1;
                             turn = 1;
+                            inContinuousJump = false;
                         } else if (objy == 8) {
                             piece->crowned = true;
                             piece->selected = false;
                             pieceSelectedIndex = -1;
                             turn = 1;
+                            inContinuousJump = false;
                         } else {
                             jump = false;
                             jumpAvailable = false;
@@ -462,6 +467,9 @@
                                 piece->selected = false;
                                 pieceSelectedIndex = -1;
                                 turn = 1;
+                                inContinuousJump = false;
+                            } else {
+                                inContinuousJump = true;
                             }
                         }
                         break;
@@ -475,11 +483,13 @@
                             piece->selected = false;
                             pieceSelectedIndex = -1;
                             turn = 0;
+                            inContinuousJump = false;
                         } else if (objy == 0) {
                             piece->crowned = true;
                             piece->selected = false;
                             pieceSelectedIndex = -1;
                             turn = 0;
+                            inContinuousJump = false;
                         } else {
                             std::cout<<"else"<<std::endl;
                             jump = false;
@@ -491,6 +501,9 @@
                                 piece->selected = false;
                                 pieceSelectedIndex = -1;
                                 turn = 0;
+                                inContinuousJump = false;
+                            } else {
+                                inContinuousJump = true;
                             }
                         }
                 }
