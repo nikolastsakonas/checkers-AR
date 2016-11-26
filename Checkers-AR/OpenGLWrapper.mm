@@ -86,26 +86,28 @@
             if (occupiedByOpp) {
                 newCoorX = diagonalX + newCoorX;
                 newCoorY = diagonalY + newCoorY;
-                for(int j = 0; j < redPieces.size(); j++) {
-                    piece = &redPieces.at(j);
-                    if(piece->x == newCoorX && piece->y == newCoorY) {
-                        occupied = true;
-                        break;
+                if (newCoorX >= 0 && newCoorX <= 6 && newCoorY >= 0 && newCoorY <= 8) {
+                    for(int j = 0; j < redPieces.size(); j++) {
+                        piece = &redPieces.at(j);
+                        if(piece->x == newCoorX && piece->y == newCoorY) {
+                            occupied = true;
+                            break;
+                        }
                     }
-                }
-                for(int j = 0; j < grayPieces.size(); j++) {
-                    piece = &grayPieces.at(j);
-                    if(piece->x == newCoorX && piece->y == newCoorY) {
-                        occupied = true;
-                        break;
+                    for(int j = 0; j < grayPieces.size(); j++) {
+                        piece = &grayPieces.at(j);
+                        if(piece->x == newCoorX && piece->y == newCoorY) {
+                            occupied = true;
+                            break;
+                        }
                     }
-                }
-                if (!occupied) {
-                    move.x = newCoorX;
-                    move.y = newCoorY;
-                    move.checkersJumped = 1;
-                    moves.push_back(move);
-                    jumpAvailable = true;
+                    if (!occupied) {
+                        move.x = newCoorX;
+                        move.y = newCoorY;
+                        move.checkersJumped = 1;
+                        moves.push_back(move);
+                        jumpAvailable = true;
+                    }
                 }
             }
         }
@@ -187,26 +189,28 @@
             if (occupiedByOpp) {
                 newCoorX = diagonalX + newCoorX;
                 newCoorY = diagonalY + newCoorY;
-                for(int j = 0; j < redPieces.size(); j++) {
-                    piece = &redPieces.at(j);
-                    if(piece->x == newCoorX && piece->y == newCoorY) {
-                        occupied = true;
-                        break;
+                if (newCoorX >= 0 && newCoorX <= 6 && newCoorY >= 0 && newCoorY <= 8) {
+                    for(int j = 0; j < redPieces.size(); j++) {
+                        piece = &redPieces.at(j);
+                        if(piece->x == newCoorX && piece->y == newCoorY) {
+                            occupied = true;
+                            break;
+                        }
                     }
-                }
-                for(int j = 0; j < grayPieces.size(); j++) {
-                    piece = &grayPieces.at(j);
-                    if(piece->x == newCoorX && piece->y == newCoorY) {
-                        occupied = true;
-                        break;
+                    for(int j = 0; j < grayPieces.size(); j++) {
+                        piece = &grayPieces.at(j);
+                        if(piece->x == newCoorX && piece->y == newCoorY) {
+                            occupied = true;
+                            break;
+                        }
                     }
-                }
-                if (!occupied) {
-                    move.x = newCoorX;
-                    move.y = newCoorY;
-                    move.checkersJumped = 1;
-                    moves.push_back(move);
-                    jumpAvailable = true;
+                    if (!occupied) {
+                        move.x = newCoorX;
+                        move.y = newCoorY;
+                        move.checkersJumped = 1;
+                        moves.push_back(move);
+                        jumpAvailable = true;
+                    }
                 }
             }
         }
@@ -308,56 +312,59 @@
 }
 
 -(bool) jumpsAvailable {
+    moves.clear();
     checkerPiece *piece;
     checkerPiece saveSelectedPiece = selectedPiece;
-    bool valid = false;
-    int i,j,k;
+    int i;
     if (!turn) {
         for(i = 0; i < grayPieces.size(); i++) {
             piece = &grayPieces.at(i);
-//            for (j = 0; j < 7; j++) {
-//                for (k = 0; k < 9; k++) {
-//                    if(piece->x == j && piece->y == k) {
             selectedPiece = *piece;
-                        if (piece->crowned) {
-                            [self getValidForwardMoves];
-                            [self getValidBackwardMoves];
-                            [self getValidForwardJumpMoves];
-                            [self getValidBackwardJumpMoves];
-                        } else {
-                            [self getValidBackwardMoves];
-                            [self getValidBackwardJumpMoves];
-                        }
-//                        break;
-//                    }
-//                }
-//            }
+            if (piece->crowned) {
+                [self getValidForwardMoves];
+                [self getValidBackwardMoves];
+                [self getValidForwardJumpMoves];
+                [self getValidBackwardJumpMoves];
+            } else {
+                [self getValidBackwardMoves];
+                [self getValidBackwardJumpMoves];
+            }
         }
     } else {
         for(i = 0; i < redPieces.size(); i++) {
             piece = &redPieces.at(i);
-//            for (j = 0; j < 7; j++) {
-//                for (k = 0; k < 9; k++) {
-//                    if(piece->x == j && piece->y == k) {
-                        selectedPiece = *piece;
-                        if (piece->crowned) {
-                            [self getValidForwardMoves];
-                            [self getValidBackwardMoves];
-                            [self getValidForwardJumpMoves];
-                            [self getValidBackwardJumpMoves];
-                        } else {
-                            [self getValidForwardMoves];
-                            [self getValidForwardJumpMoves];
-                        }
-//                        break;
-//                    }
-//                }
-//            }
+            selectedPiece = *piece;
+            if (piece->crowned) {
+                [self getValidForwardMoves];
+                [self getValidBackwardMoves];
+                [self getValidForwardJumpMoves];
+                [self getValidBackwardJumpMoves];
+            } else {
+                [self getValidForwardMoves];
+                [self getValidForwardJumpMoves];
+            }
         }
     }
     selectedPiece = saveSelectedPiece;
     if (!jump && jumpAvailable) return false;
     else return true;
+}
+
+-(void) selectedPieceJumpsAvailable {
+    moves.clear();
+    if (selectedPiece.crowned) {
+        [self getValidForwardMoves];
+        [self getValidBackwardMoves];
+        [self getValidForwardJumpMoves];
+        [self getValidBackwardJumpMoves];
+    }
+    else if (turn) {
+        [self getValidForwardMoves];
+        [self getValidForwardJumpMoves];
+    } else {
+        [self getValidBackwardMoves];
+        [self getValidBackwardJumpMoves];
+    }
 }
 
 -(void) selectPiece:(float) objx :(float) objy {
@@ -397,9 +404,10 @@
     checkerPiece *piece;
     bool isValid = false;
     bool available = false;
+    bool selectedPieceJumps = false;
     found = [calibrator findPlaceOnCheckerboard :xx :yy :&objx :&objy];
     if(found) {
-        std::cout << objx << " , " << objy << std::endl;
+//        std::cout << objx << " , " << objy << std::endl;
 
         [self selectPiece :objx :objy];
         
@@ -422,41 +430,72 @@
             }
             isValid = [self isValidMove :objx :objy];
             available = [self jumpsAvailable];
-            if (available) std::cout << "true" << std::endl;
-            else std::cout << "false" << std::endl;
+//            if (available) std::cout << "true" << std::endl;
+//            else std::cout << "false" << std::endl;
             if(!occupied && isValid && available) {
                 if (turn && jump) {
                     grayPieces.erase(grayPieces.begin() + erasedCheckerIndex);
-                    jump = false;
-                    jumpAvailable = false;
                 } else if (!turn && jump){
                     redPieces.erase(redPieces.begin() + erasedCheckerIndex);
-                    jump = false;
-                    jumpAvailable = false;
                 }
                 switch(turn) {
                     case 0:
                         piece = &grayPieces.at(pieceSelectedIndex);
                         piece->x = objx;
                         piece->y = objy;
-                        piece->selected = false;
-                        pieceSelectedIndex = -1;
-                        turn = 1;
-                        if (objy == 8) {
+                        selectedPiece.x = objx;
+                        selectedPiece.y = objy;
+                        if (!jump) {
+                            piece->selected = false;
+                            pieceSelectedIndex = -1;
+                            turn = 1;
+                        } else if (objy == 8) {
                             piece->crowned = true;
+                            piece->selected = false;
+                            pieceSelectedIndex = -1;
+                            turn = 1;
+                        } else {
+                            jump = false;
+                            jumpAvailable = false;
+                            [self selectedPieceJumpsAvailable];
+                            if (!jumpAvailable) {
+                                piece->selected = false;
+                                pieceSelectedIndex = -1;
+                                turn = 1;
+                            }
                         }
                         break;
                     default:
                         piece = &redPieces.at(pieceSelectedIndex);
                         piece->x = objx;
                         piece->y = objy;
-                        piece->selected = false;
-                        pieceSelectedIndex = -1;
-                        turn = 0;
-                        if (objy == 0) {
+                        selectedPiece.x = objx;
+                        selectedPiece.y = objy;
+                        if (!jump) {
+                            piece->selected = false;
+                            pieceSelectedIndex = -1;
+                            turn = 0;
+                        } else if (objy == 0) {
                             piece->crowned = true;
+                            piece->selected = false;
+                            pieceSelectedIndex = -1;
+                            turn = 0;
+                        } else {
+                            std::cout<<"else"<<std::endl;
+                            jump = false;
+                            jumpAvailable = false;
+                            [self selectedPieceJumpsAvailable];
+                            std::cout<< selectedPiece.x << ", "<< selectedPiece.y <<std::endl;
+                            if (!jumpAvailable) {
+                                std::cout<<"jumps not avail"<<std::endl;
+                                piece->selected = false;
+                                pieceSelectedIndex = -1;
+                                turn = 0;
+                            }
                         }
                 }
+                jump = false;
+                jumpAvailable = false;
             }
         }
         
