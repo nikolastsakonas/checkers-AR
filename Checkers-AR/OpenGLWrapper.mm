@@ -31,6 +31,7 @@
     int turn;
     int erasedCheckerIndex;
     bool jump;
+    bool jumpAvailable;
 }
 
 -(void) setParams:(GLKBaseEffect*)eff cont:(EAGLContext*)Contextcont width:(double)_width height:(double)_height {
@@ -104,6 +105,7 @@
                     move.y = newCoorY;
                     move.checkersJumped = 1;
                     moves.push_back(move);
+                    jumpAvailable = true;
                 }
             }
         }
@@ -204,6 +206,7 @@
                     move.y = newCoorY;
                     move.checkersJumped = 1;
                     moves.push_back(move);
+                    jumpAvailable = true;
                 }
             }
         }
@@ -295,11 +298,66 @@
                     }
                 }
                 jump = true;
+            } else if (jumpAvailable) {
+                return false;
             }
             return true;
         }
     }
     return false;
+}
+
+-(bool) jumpsAvailable {
+    checkerPiece *piece;
+    checkerPiece saveSelectedPiece = selectedPiece;
+    bool valid = false;
+    int i,j,k;
+    if (!turn) {
+        for(i = 0; i < grayPieces.size(); i++) {
+            piece = &grayPieces.at(i);
+//            for (j = 0; j < 7; j++) {
+//                for (k = 0; k < 9; k++) {
+//                    if(piece->x == j && piece->y == k) {
+            selectedPiece = *piece;
+                        if (piece->crowned) {
+                            [self getValidForwardMoves];
+                            [self getValidBackwardMoves];
+                            [self getValidForwardJumpMoves];
+                            [self getValidBackwardJumpMoves];
+                        } else {
+                            [self getValidBackwardMoves];
+                            [self getValidBackwardJumpMoves];
+                        }
+//                        break;
+//                    }
+//                }
+//            }
+        }
+    } else {
+        for(i = 0; i < redPieces.size(); i++) {
+            piece = &redPieces.at(i);
+//            for (j = 0; j < 7; j++) {
+//                for (k = 0; k < 9; k++) {
+//                    if(piece->x == j && piece->y == k) {
+                        selectedPiece = *piece;
+                        if (piece->crowned) {
+                            [self getValidForwardMoves];
+                            [self getValidBackwardMoves];
+                            [self getValidForwardJumpMoves];
+                            [self getValidBackwardJumpMoves];
+                        } else {
+                            [self getValidForwardMoves];
+                            [self getValidForwardJumpMoves];
+                        }
+//                        break;
+//                    }
+//                }
+//            }
+        }
+    }
+    selectedPiece = saveSelectedPiece;
+    if (!jump && jumpAvailable) return false;
+    else return true;
 }
 
 -(void) selectPiece:(float) objx :(float) objy {
@@ -337,7 +395,8 @@
     int objx, objy;
     bool found;
     checkerPiece *piece;
-    int isValid = false;
+    bool isValid = false;
+    bool available = false;
     found = [calibrator findPlaceOnCheckerboard :xx :yy :&objx :&objy];
     if(found) {
         std::cout << objx << " , " << objy << std::endl;
@@ -362,15 +421,18 @@
                 }
             }
             isValid = [self isValidMove :objx :objy];
-            if (isValid) std::cout << "true" << std::endl;
+            available = [self jumpsAvailable];
+            if (available) std::cout << "true" << std::endl;
             else std::cout << "false" << std::endl;
-            if(!occupied && isValid) {
+            if(!occupied && isValid && available) {
                 if (turn && jump) {
                     grayPieces.erase(grayPieces.begin() + erasedCheckerIndex);
                     jump = false;
+                    jumpAvailable = false;
                 } else if (!turn && jump){
                     redPieces.erase(redPieces.begin() + erasedCheckerIndex);
                     jump = false;
+                    jumpAvailable = false;
                 }
                 switch(turn) {
                     case 0:
