@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1108" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -24,7 +24,7 @@
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fqL-xD-s4l">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="659"/>
-                                <color key="backgroundColor" patternImage="96037317-1E79-4AAC-96E8-90F924B0841D" colorSpace="pattern"/>
+                                <color key="backgroundColor" patternImage="AC2D527D-3295-48F7-9F5D-CFE73A3647B8" colorSpace="pattern"/>
                             </imageView>
                             <imageView userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cVf-Kc-z0p">
                                 <rect key="frame" x="31" y="44" width="315" height="603"/>
@@ -74,6 +74,13 @@
                                 <color key="textColor" red="0.98721723557241159" green="1" blue="0.98772525577934867" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Game Over!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rI9-9s-hRn">
+                                <rect key="frame" x="48" y="243" width="278" height="180"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="35"/>
+                                <color key="textColor" red="0.28514764405315707" green="1" blue="0.217208276970832" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Please take 10 images of the Checkerboard in different Orientations in order to calibrate your camera" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ge1-U3-Uc1">
                                 <rect key="frame" x="53" y="21" width="278" height="90"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -91,6 +98,19 @@
                                 <color key="textColor" red="0.25401260900628359" green="0.65355039267015713" blue="0.080035104619198078" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" tag="1" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kyo-9R-uZj">
+                                <rect key="frame" x="147" y="493" width="81" height="27"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Play Again">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                    <color key="titleShadowColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="playAgainButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1C2-Bq-Cki"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -121,9 +141,11 @@
                         <outlet property="beginGameButton" destination="qHh-Nk-abA" id="gfB-RO-2z8"/>
                         <outlet property="calibrateImageButton" destination="8gk-Ai-Eo2" id="JW5-Qq-c55"/>
                         <outlet property="calibrationInstructionsLabel" destination="Ge1-U3-Uc1" id="36f-yq-nHN"/>
+                        <outlet property="gameOverLabel" destination="rI9-9s-hRn" id="A0E-tx-jxT"/>
                         <outlet property="glkView" destination="Zzk-Lf-gpO" id="QD6-jg-2jy"/>
                         <outlet property="imageView" destination="fqL-xD-s4l" id="Ltc-mO-Igg"/>
                         <outlet property="leftToCalibrateLabel" destination="tdc-AS-Fqi" id="9tI-AF-DBh"/>
+                        <outlet property="playAgainButton" destination="Kyo-9R-uZj" id="jwG-K3-VeK"/>
                         <outlet property="previewView" destination="cVf-Kc-z0p" id="R4F-DL-yb7"/>
                         <outlet property="successLabel" destination="AQI-68-I7W" id="i9x-vG-RTZ"/>
                     </connections>
@@ -134,7 +156,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="96037317-1E79-4AAC-96E8-90F924B0841D" width="512" height="512">
+        <image name="AC2D527D-3295-48F7-9F5D-CFE73A3647B8" width="512" height="512">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGPT5YJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK4HCBMU
 GR4fIyQrLjE3OlUkbnVsbNUJCgsMDQ4PEBESVk5TU2l6ZVYkY2xhc3NcTlNJbWFnZUZsYWdzVk5TUmVw

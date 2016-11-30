@@ -22,6 +22,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @IBOutlet weak var calibrateImageButton: UIButton!
     @IBOutlet weak var beginGameButton: UIButton!
     @IBOutlet weak var beginCalibrationButton: UIButton!
+    @IBOutlet weak var playAgainButton: UIButton!
     var calibratePressed : Bool = false
     var session = AVCaptureSession()
     var playing = false
@@ -30,19 +31,22 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     var previewLayer = AVCaptureVideoPreviewLayer()
     var playingLayer = CALayer()
     @IBOutlet weak var successLabel: UILabel!
+    @IBOutlet weak var gameOverLabel: UILabel!
     @IBOutlet weak var glkView: GLKView!
     var context : EAGLContext = EAGLContext.init(api: EAGLRenderingAPI.openGLES1)
     var effect = GLKBaseEffect()
     var currentImage : UIImage = UIImage()
     var imageSize : CGSize = CGSize()
     var frameBuffer : GLuint = GLuint()
-    
+    var gameOver : Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
             beginGameButton.layer.cornerRadius = 5
             calibrateImageButton.layer.cornerRadius = 5
             beginCalibrationButton.layer.cornerRadius = 5
+            playAgainButton.isHidden = true
+            gameOverLabel.isHidden = true
             glkView.delegate = self
         
             if let data = ud.object(forKey: "calibrator") as? NSData {
@@ -103,7 +107,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         UIView.animate(withDuration: 2.70, animations: {
             self.successLabel.alpha = 0.0
         })
-        
+        beginGameButton.isHidden = false
         clearLayers()
     }
     
@@ -148,6 +152,11 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     
     @IBAction func beginCalibrationButtonPressed(_ sender: AnyObject) {
         //reset class
+        openGL.destroyFrameBuffer()
+        playAgainButton.isHidden = true
+        self.imageView.isHidden = false
+        self.previewView.isHidden = false
+        gameOverLabel.isHidden = true
         calibrator = OpenCVWrapper()
         session.stopRunning()
         playing = false
@@ -221,6 +230,11 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     
     @IBAction func beginGameButtonPressed(_ sender: AnyObject) {
         //don't need to reinitialize camera if we've already used it
+        openGL.createFramebuffer()
+        initializeOpenGL()
+        beginGameButton.isHidden = true
+        glkView.isHidden = false
+        openGL.newGame()
         playing = !playing;
         if(playing) {
             setPlayingLayer()
@@ -237,8 +251,37 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     
     func tapOnGLKView(_ touch:UITapGestureRecognizer) {
         let point = touch.location(in: self.glkView)
-        openGL.tap(onScreen: Float(point.x), Float(point.y))
+        var winningTeam : Int
+        gameOver = Int(openGL.tap(onScreen: Float(point.x), Float(point.y)))
+        if (gameOver == 1) {
+            print("GAME OVER AGAIN")
+            winningTeam = Int(openGL.teamWon())
+            UIView.animate(withDuration: 5.70, animations: {
+                self.imageView.isHidden = true
+                self.previewView.isHidden = true
+                self.glkView.isHidden = true
+                self.playAgainButton.layer.cornerRadius = 5
+                self.beginGameButton.isHidden = true
+                if (winningTeam == 0) {
+                    self.gameOverLabel.numberOfLines = 2
+                    self.gameOverLabel.text = "Game Over!\n Gray Team Wins!"
+                } else {
+                    self.gameOverLabel.numberOfLines = 2
+                    self.gameOverLabel.text = "Game Over!\n Red Team Wins!"
+                }
+                self.playAgainButton.isHidden = false
+                self.gameOverLabel.isHidden = false
+            })
+        }
 //        print("x: \(point.x) y: \(point.y)")
+    }
+    @IBAction func playAgainButtonPressed(_ sender: Any) {
+        playAgainButton.isHidden = true
+        gameOverLabel.isHidden = true
+        glkView.isHidden = false
+        imageView.isHidden = false
+        previewView.isHidden = false
+        openGL.newGame()
     }
     
     func initializeOpenGL() {
@@ -313,6 +356,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     //override
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         if(calibratePressed) {
+            playAgainButton.isHidden = true
             calibratePressed = false
             var img : UIImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer);
             img = flipImage(oldImage: img)

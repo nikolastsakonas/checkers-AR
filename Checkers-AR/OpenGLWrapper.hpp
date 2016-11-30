@@ -27,7 +27,12 @@
 -(void) getValidForwardMoves;
 -(void) getValidBackwardMoves;
 -(bool) isValidMove:(float) objx :(float) objy;
--(void) tapOnScreen:(float)x :(float) y;
+-(int) tapOnScreen:(float)x :(float) y;
+-(int) teamWon;
+-(void) initializeCheckerPieces;
+-(void) newGame;
+-(void) createFramebuffer;
+-(void) destroyFrameBuffer;
 
 typedef struct checker {
     double x;

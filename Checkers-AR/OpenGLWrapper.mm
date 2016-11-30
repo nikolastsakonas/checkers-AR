@@ -371,8 +371,8 @@
         }
     }
     selectedPiece = saveSelectedPiece;
-    std::cout << "IN SUGGEST PIECE: " << suggestPieceX << ", " << suggestPieceY << std::endl;
-    std::cout << "IN SUGGEST MOVE: " << suggestMoveX << ", " << suggestMoveY << std::endl;
+//    std::cout << "IN SUGGEST PIECE: " << suggestPieceX << ", " << suggestPieceY << std::endl;
+//    std::cout << "IN SUGGEST MOVE: " << suggestMoveX << ", " << suggestMoveY << std::endl;
     if (moves.size() != 0) return true;
     else return false;
 }
@@ -466,7 +466,7 @@
     }
 }
 
--(void) tapOnScreen:(float)xx :(float) yy {
+-(int) tapOnScreen:(float)xx :(float) yy {
     int objx, objy;
     bool found;
     checkerPiece *piece;
@@ -556,13 +556,11 @@
                             turn = 0;
                             inContinuousJump = false;
                         } else {
-                            std::cout<<"else"<<std::endl;
                             jump = false;
                             jumpAvailable = false;
                             [self selectedPieceJumpsAvailable];
                             std::cout<< selectedPiece.x << ", "<< selectedPiece.y <<std::endl;
                             if (!jumpAvailable) {
-                                std::cout<<"jumps not avail"<<std::endl;
                                 piece->selected = false;
                                 pieceSelectedIndex = -1;
                                 turn = 0;
@@ -578,6 +576,25 @@
         }
         
     }
+    if (team0Score == 11 || team1Score == 11) return 1;
+    else return 0;
+}
+
+- (int) teamWon {
+    if (team1Score == 11) return 1;
+    else return 0;
+}
+
+- (void) newGame {
+    team0Score = 0;
+    team1Score = 0;
+    grayPieces.clear();
+    redPieces.clear();
+    turn = 0;
+    if(!viewRenderBuffer)
+        glBindRenderbuffer(GL_RENDERBUFFER, viewRenderBuffer);
+    [self initializeCheckerPieces];
+    [self createFramebuffer];
 }
 
 - (void) initializeCheckerPieces {
@@ -654,6 +671,34 @@
     glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+    
+    if(!viewRenderBuffer)
+        glBindRenderbuffer(GL_RENDERBUFFER, viewRenderBuffer);
+}
+
+-(void) destroyFrameBuffer
+{
+    // Tear down GL
+    if (viewFrameBuffer)
+    {
+        glDeleteFramebuffers(1, &viewFrameBuffer);
+        viewFrameBuffer = 0;
+    }
+    
+    if (colorRenderBuffer)
+    {
+        glDeleteRenderbuffers(1, &colorRenderBuffer);
+        colorRenderBuffer = 0;
+    }
+    if (depthRenderBuffer)
+    {
+        glDeleteRenderbuffers(1, &depthRenderBuffer);
+        depthRenderBuffer = 0;
+    }
+    if (viewRenderBuffer) {
+        glDeleteRenderbuffers(1, &viewRenderBuffer);
+        viewRenderBuffer = 0;
+    }
 }
 
 -(bool) checkTimeStamp {
@@ -707,7 +752,8 @@ void drawAxes(float length)
             vertice[i]   = (GLfloat)(cos(DEGREES_TO_RADIANS(i)) * 0.38) + piece.x - 0.5;
             vertice[i+1] = (GLfloat)(sin(DEGREES_TO_RADIANS(i)) * 0.38) + piece.y - 0.5;
         }
-        if(piece.selected && z == 0) {
+//        if(piece.selected && z == 0) {
+        if(piece.selected) {
             glColor4f(0, 1, 1, 1.0f);
         } else if(piece.color == 0) {
             glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
@@ -814,8 +860,6 @@ void drawAxes(float length)
                     glVertexPointer(3, GL_FLOAT, 0, vertices);
                     glDrawArrays(GL_LINES, 0, 3);
                     glDisableClientState(GL_VERTEX_ARRAY);
-                    std::cout << "suggeset piece: " << suggestPieceX << ", " << suggestPieceY << std::endl;
-                    std::cout << "suggeset move: " << suggestMoveX << ", " << suggestMoveY << std::endl;
                 }
             }
 //            drawAxes(2);
