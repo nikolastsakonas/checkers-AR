@@ -773,47 +773,50 @@ void drawAxes(float length)
                 [self drawCheckerPiece :redPieces.at(i)];
             }
             if ([self suggestMove] && !inContinuousJump) {
-                GLfloat vertices[] = {(GLfloat)suggestPieceX - 0.5f, (GLfloat)suggestPieceY - 0.5f, 0, (GLfloat)suggestMoveX - 0.5f, (GLfloat)suggestMoveY - 0.5f, 0};
-                GLfloat slopeY = (GLfloat)(suggestPieceY - suggestMoveY);
-                GLfloat slopeX = (GLfloat)(suggestPieceX - suggestMoveX);
-                GLfloat arrow[9];
-                arrow[0] = (GLfloat)suggestMoveX - 0.5f;
-                arrow[1] = (GLfloat)suggestMoveY - 0.5f;
-                arrow[2] = 0;
-                arrow[5] = 0;
-                arrow[8] = 0;
-                if (slopeX > 0.0f && slopeY > 0.0f) {
-                    arrow[3] = (GLfloat)suggestMoveX - 0.5f;
-                    arrow[4] = (GLfloat)suggestMoveY - 0.0f;
-                    arrow[6] = (GLfloat)suggestMoveX - 0.0f;
-                    arrow[7] = (GLfloat)suggestMoveY - 0.5f;
-                } else if (slopeX > 0.0f && slopeY < 0.0f) {
-                    arrow[3] = (GLfloat)suggestMoveX - 0.5f;
-                    arrow[4] = (GLfloat)suggestMoveY - 1.0f;
-                    arrow[6] = (GLfloat)suggestMoveX - 0.0f;
-                    arrow[7] = (GLfloat)suggestMoveY - 0.5f;
-                } else if (slopeX < 0.0f && slopeY > 0.0f) {
-                    arrow[3] = (GLfloat)suggestMoveX - 1.0f;
-                    arrow[4] = (GLfloat)suggestMoveY - 0.5f;
-                    arrow[6] = (GLfloat)suggestMoveX - 0.5f;
-                    arrow[7] = (GLfloat)suggestMoveY - 0.0f;
-                } else {
-                    arrow[3] = (GLfloat)suggestMoveX - 0.5f;
-                    arrow[4] = (GLfloat)suggestMoveY - 1.0f;
-                    arrow[6] = (GLfloat)suggestMoveX - 1.0f;
-                    arrow[7] = (GLfloat)suggestMoveY - 0.5f;
+                GLfloat z = 0.0f;
+                for(z = 0.0f; z > -0.5f; z-=0.01f) {
+                    GLfloat vertices[] = {(GLfloat)suggestPieceX - 0.5f, (GLfloat)suggestPieceY - 0.5f, z, (GLfloat)suggestMoveX - 0.5f, (GLfloat)suggestMoveY - 0.5f, z};
+                    GLfloat slopeY = (GLfloat)(suggestPieceY - suggestMoveY);
+                    GLfloat slopeX = (GLfloat)(suggestPieceX - suggestMoveX);
+                    GLfloat arrow[9];
+                    arrow[0] = (GLfloat)suggestMoveX - 0.5f;
+                    arrow[1] = (GLfloat)suggestMoveY - 0.5f;
+                    arrow[2] = z;
+                    arrow[5] = z;
+                    arrow[8] = z;
+                    if (slopeX > 0.0f && slopeY > 0.0f) {
+                        arrow[3] = (GLfloat)suggestMoveX - 0.5f;
+                        arrow[4] = (GLfloat)suggestMoveY - 0.0f;
+                        arrow[6] = (GLfloat)suggestMoveX - 0.0f;
+                        arrow[7] = (GLfloat)suggestMoveY - 0.5f;
+                    } else if (slopeX > 0.0f && slopeY < 0.0f) {
+                        arrow[3] = (GLfloat)suggestMoveX - 0.5f;
+                        arrow[4] = (GLfloat)suggestMoveY - 1.0f;
+                        arrow[6] = (GLfloat)suggestMoveX - 0.0f;
+                        arrow[7] = (GLfloat)suggestMoveY - 0.5f;
+                    } else if (slopeX < 0.0f && slopeY > 0.0f) {
+                        arrow[3] = (GLfloat)suggestMoveX - 1.0f;
+                        arrow[4] = (GLfloat)suggestMoveY - 0.5f;
+                        arrow[6] = (GLfloat)suggestMoveX - 0.5f;
+                        arrow[7] = (GLfloat)suggestMoveY - 0.0f;
+                    } else {
+                        arrow[3] = (GLfloat)suggestMoveX - 0.5f;
+                        arrow[4] = (GLfloat)suggestMoveY - 1.0f;
+                        arrow[6] = (GLfloat)suggestMoveX - 1.0f;
+                        arrow[7] = (GLfloat)suggestMoveY - 0.5f;
+                    }
+                    glColor4f(1.f, 1.0f, 0.0f, 1.0f);
+                    glEnableClientState(GL_VERTEX_ARRAY) ;
+                    glVertexPointer(3, GL_FLOAT, 0, vertices);
+                    glLineWidth(5);
+                    glVertexPointer(3, GL_FLOAT, 0, arrow);
+                    glDrawArrays(GL_TRIANGLES, 0, 3);
+                    glVertexPointer(3, GL_FLOAT, 0, vertices);
+                    glDrawArrays(GL_LINES, 0, 3);
+                    glDisableClientState(GL_VERTEX_ARRAY);
+                    std::cout << "suggeset piece: " << suggestPieceX << ", " << suggestPieceY << std::endl;
+                    std::cout << "suggeset move: " << suggestMoveX << ", " << suggestMoveY << std::endl;
                 }
-                glColor4f(1.f, 1.0f, 0.0f, 1.0f);
-                glEnableClientState(GL_VERTEX_ARRAY) ;
-                glVertexPointer(3, GL_FLOAT, 0, vertices);
-                glLineWidth(5);
-                glVertexPointer(3, GL_FLOAT, 0, arrow);
-                glDrawArrays(GL_TRIANGLES, 0, 3);
-                glVertexPointer(3, GL_FLOAT, 0, vertices);
-                glDrawArrays(GL_LINES, 0, 3);
-                glDisableClientState(GL_VERTEX_ARRAY);
-                std::cout << "suggeset piece: " << suggestPieceX << ", " << suggestPieceY << std::endl;
-                std::cout << "suggeset move: " << suggestMoveX << ", " << suggestMoveY << std::endl;
             }
 //            drawAxes(2);
             
