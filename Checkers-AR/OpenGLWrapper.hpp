@@ -33,6 +33,8 @@
 -(void) newGame;
 -(void) createFramebuffer;
 -(void) destroyFrameBuffer;
+-(int) getTeam0Score;
+-(int) getTeam1Score;
 
 typedef struct checker {
     double x;

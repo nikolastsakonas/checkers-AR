@@ -60,6 +60,13 @@
 //    [self createFramebuffer];
 }
 
+-(int) getTeam0Score {
+    return team0Score;
+}
+-(int) getTeam1Score {
+    return team1Score;
+}
+
 -(void) getValidForwardJumpMoves{
     bool occupiedByOpp = false;
     bool occupied = false;
@@ -326,22 +333,30 @@
     moves.clear();
     checkerPiece *piece;
     checkerPiece saveSelectedPiece = selectedPiece;
+    int tempTeam0Score = team0Score;
+    int tempTeam1Score = team1Score;
     int i;
+    bool breakOut = false;
     if (!turn) {
         for(i = 0; i < grayPieces.size(); i++) {
             piece = &grayPieces.at(i);
             selectedPiece = *piece;
             for (int j = 0; j < 7; j++) {
                 for (int k = 0; k < 9; k++) {
-                    if ([self isValidMove:(float)j :(float)k]) {
+                    if ([self isValidMove:(float)j :(float)k] && [self jumpsAvailable]) {
                         suggestPieceX = piece->x;
                         suggestPieceY = piece->y;
                         suggestMoveX = (float)j;
                         suggestMoveY = (float)k;
+                        breakOut = true;
                         break;
                     }
                 }
+                if (breakOut)
+                    break;
             }
+            if (breakOut)
+                break;
         }
     } else {
         for(i = 0; i < redPieces.size(); i++) {
@@ -349,18 +364,25 @@
             selectedPiece = *piece;
             for (int j = 0; j < 7; j++) {
                 for (int k = 0; k < 9; k++) {
-                    if ([self isValidMove:(float)j :(float)k]) {
+                    if ([self isValidMove:(float)j :(float)k]  && [self jumpsAvailable]) {
                         suggestPieceX = piece->x;
                         suggestPieceY = piece->y;
                         suggestMoveX = (float)j;
                         suggestMoveY = (float)k;
+                        breakOut = true;
                         break;
                     }
                 }
+                if (breakOut)
+                    break;
             }
+            if (breakOut)
+                break;
         }
     }
     selectedPiece = saveSelectedPiece;
+    team0Score = tempTeam0Score;
+    team1Score = tempTeam1Score;
 //    std::cout << "IN SUGGEST PIECE: " << suggestPieceX << ", " << suggestPieceY << std::endl;
 //    std::cout << "IN SUGGEST MOVE: " << suggestMoveX << ", " << suggestMoveY << std::endl;
     if (moves.size() != 0) return true;
@@ -503,7 +525,7 @@
                         piece->y = objy;
                         selectedPiece.x = objx;
                         selectedPiece.y = objy;
-                        if (!jump) {
+                        if (!jump && objy != 8) {
                             piece->selected = false;
                             pieceSelectedIndex = -1;
                             turn = 1;
@@ -535,7 +557,7 @@
                         piece->y = objy;
                         selectedPiece.x = objx;
                         selectedPiece.y = objy;
-                        if (!jump) {
+                        if (!jump && objy != 0) {
                             piece->selected = false;
                             pieceSelectedIndex = -1;
                             turn = 0;
@@ -923,6 +945,7 @@ void drawAxes(float length)
             for(int i = 0; i < redPieces.size(); i++) {
                 [self drawCheckerPiece :redPieces.at(i)];
             }
+            glDisable(GL_LIGHTING);
             if ([self suggestMove] && !inContinuousJump) {
                 GLfloat z = 0.0f;
                 for(z = 0.0f; z > -0.5f; z-=0.01f) {

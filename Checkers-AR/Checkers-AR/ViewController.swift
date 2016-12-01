@@ -33,6 +33,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @IBOutlet weak var successLabel: UILabel!
     @IBOutlet weak var gameOverLabel: UILabel!
     @IBOutlet weak var glkView: GLKView!
+    @IBOutlet weak var scoreLabel: UILabel!
     var context : EAGLContext = EAGLContext.init(api: EAGLRenderingAPI.openGLES1)
     var effect = GLKBaseEffect()
     var currentImage : UIImage = UIImage()
@@ -153,6 +154,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @IBAction func beginCalibrationButtonPressed(_ sender: AnyObject) {
         //reset class
         openGL.destroyFrameBuffer()
+        self.scoreLabel.isHidden = true;
         playAgainButton.isHidden = true
         self.imageView.isHidden = false
         self.previewView.isHidden = false
@@ -230,11 +232,13 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     
     @IBAction func beginGameButtonPressed(_ sender: AnyObject) {
         //don't need to reinitialize camera if we've already used it
+        openGL.newGame()
+        self.scoreLabel.isHidden = false
+        self.scoreLabel.text = "Gray: \(openGL.getTeam0Score()) Red: \(openGL.getTeam1Score())"
         openGL.createFramebuffer()
         initializeOpenGL()
         beginGameButton.isHidden = true
         glkView.isHidden = false
-        openGL.newGame()
         playing = !playing;
         if(playing) {
             setPlayingLayer()
@@ -253,6 +257,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         let point = touch.location(in: self.glkView)
         var winningTeam : Int
         gameOver = Int(openGL.tap(onScreen: Float(point.x), Float(point.y)))
+        self.scoreLabel.text = "Gray: \(openGL.getTeam0Score()) Red: \(openGL.getTeam1Score())"
         if (gameOver == 1) {
             print("GAME OVER AGAIN")
             winningTeam = Int(openGL.teamWon())
@@ -276,6 +281,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
 //        print("x: \(point.x) y: \(point.y)")
     }
     @IBAction func playAgainButtonPressed(_ sender: Any) {
+        self.scoreLabel.isHidden = false
         playAgainButton.isHidden = true
         gameOverLabel.isHidden = true
         glkView.isHidden = false
