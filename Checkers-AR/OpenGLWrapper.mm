@@ -331,42 +331,32 @@
         for(i = 0; i < grayPieces.size(); i++) {
             piece = &grayPieces.at(i);
             selectedPiece = *piece;
-            if (piece->crowned) {
-                [self getValidForwardMoves];
-                [self getValidBackwardMoves];
-                [self getValidForwardJumpMoves];
-                [self getValidBackwardJumpMoves];
-            } else {
-                [self getValidBackwardMoves];
-                [self getValidBackwardJumpMoves];
-            }
-            if (moves.size() != 0) {
-                suggestPieceX = piece->x;
-                suggestPieceY = piece->y;
-                suggestMoveX = moves[0].x;
-                suggestMoveY = moves[0].y;
-                break;
+            for (int j = 0; j < 7; j++) {
+                for (int k = 0; k < 9; k++) {
+                    if ([self isValidMove:(float)j :(float)k]) {
+                        suggestPieceX = piece->x;
+                        suggestPieceY = piece->y;
+                        suggestMoveX = (float)j;
+                        suggestMoveY = (float)k;
+                        break;
+                    }
+                }
             }
         }
     } else {
         for(i = 0; i < redPieces.size(); i++) {
             piece = &redPieces.at(i);
             selectedPiece = *piece;
-            if (piece->crowned) {
-                [self getValidForwardMoves];
-                [self getValidBackwardMoves];
-                [self getValidForwardJumpMoves];
-                [self getValidBackwardJumpMoves];
-            } else {
-                [self getValidForwardMoves];
-                [self getValidForwardJumpMoves];
-            }
-            if (moves.size() != 0) {
-                suggestPieceX = piece->x;
-                suggestPieceY = piece->y;
-                suggestMoveX = moves[0].x;
-                suggestMoveY = moves[0].y;
-                break;
+            for (int j = 0; j < 7; j++) {
+                for (int k = 0; k < 9; k++) {
+                    if ([self isValidMove:(float)j :(float)k]) {
+                        suggestPieceX = piece->x;
+                        suggestPieceY = piece->y;
+                        suggestMoveX = (float)j;
+                        suggestMoveY = (float)k;
+                        break;
+                    }
+                }
             }
         }
     }
@@ -524,6 +514,7 @@
                             pieceSelectedIndex = -1;
                             turn = 1;
                             inContinuousJump = false;
+                            std::cout<<"GOT TO OTHER SIDE" << std::endl;
                         } else {
                             jump = false;
                             jumpAvailable = false;
@@ -741,12 +732,14 @@ void drawAxes(float length)
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
+
 - (void) drawCheckerPiece: (checkerPiece) piece {
+    /*
     GLfloat vertice[720];
     double z;
     
-
-    for(z = 0; z > -0.5; z-=0.1) {
+    GLfloat count = 0.00f;
+    for(z = 0; z > -0.5; z-=0.05) {
         glTranslatef(0, 0, z);
         for (int i = 0; i < 720; i += 2) {
             vertice[i]   = (GLfloat)(cos(DEGREES_TO_RADIANS(i)) * 0.38) + piece.x - 0.5;
@@ -754,26 +747,99 @@ void drawAxes(float length)
         }
 //        if(piece.selected && z == 0) {
         if(piece.selected) {
-            glColor4f(0, 1, 1, 1.0f);
+            glColor4f(0, 1 + count, 1 + count, 1.0f);
         } else if(piece.color == 0) {
-            glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
+            glColor4f(0.0f + count, 0.0f + count, 0.0f + count, 1.0f);
         } else {
-            glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+            glColor4f(0.0f + count*2, 0.0f, 0.0f, 1.0f);
         }
-        
+        count += 0.05f;
         glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, vertice);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 360);
         glDisableClientState(GL_VERTEX_ARRAY);
         glTranslatef(0, 0, -z);
     }
+    glTranslatef(0, 0, z);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, vertice);
+    glDrawArrays(GL_TRIANGLES, 0, 360);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glTranslatef(0, 0, -z);
+     */
+    glColor4f(1, 1, 1, 1);
+    GLfloat vertices[720];
+    GLfloat upnormals[360*3];
+    GLfloat downnormals[360*3];
+    for (int i = 0; i < 720; i += 2) {
+        vertices[i]   = (GLfloat)(cos(DEGREES_TO_RADIANS(-i/2)) * 0.38) + piece.x - 0.5;
+        vertices[i+1] = (GLfloat)(sin(DEGREES_TO_RADIANS(-i/2)) * 0.38) + piece.y - 0.5;
+        
+        upnormals[i/2*3] = 0;
+        upnormals[i/2*3+1] = 0;
+        upnormals[i/2*3+2] = -1;
+        
+        downnormals[i/2*3] = 0;
+        downnormals[i/2*3+1] = 0;
+        downnormals[i/2*3+2] = 1;
+    }
+    if(piece.selected) {
+        glColor4f(0, 1, 1, 1.0f);
+    } else if(piece.color == 0) {
+        glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
+    } else {
+        glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+    }
+    glPushMatrix();
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, vertices);
+    glNormalPointer(GL_FLOAT, 0, downnormals);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 360);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0, 0, -0.5);
+    glNormalPointer(GL_FLOAT, 0, upnormals);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 360);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glPopMatrix();
+    
+    GLfloat sides[361 * 2 * 3];
+    GLfloat normals[361 * 2 * 3];
+    for (int i = 0; i <= 360; i++) {
+        sides[i*6]   = (GLfloat)(cos(DEGREES_TO_RADIANS(i)) * 0.38) + piece.x - 0.5;
+        sides[i*6+1] = (GLfloat)(sin(DEGREES_TO_RADIANS(i)) * 0.38) + piece.y - 0.5;
+        sides[i*6+2] = 0;
+        
+        sides[i*6+3]   = (GLfloat)(cos(DEGREES_TO_RADIANS(i)) * 0.38) + piece.x - 0.5;
+        sides[i*6+4] = (GLfloat)(sin(DEGREES_TO_RADIANS(i)) * 0.38) + piece.y - 0.5;
+        sides[i*6+5] = -0.5;
+        
+        normals[i*6] = (GLfloat)cos(DEGREES_TO_RADIANS(i));
+        normals[i*6+1] = (GLfloat)sin(DEGREES_TO_RADIANS(i));
+        normals[i*6+2] = 0;
+        
+        normals[i*6+3] = (GLfloat)cos(DEGREES_TO_RADIANS(i));
+        normals[i*6+4] = (GLfloat)sin(DEGREES_TO_RADIANS(i));
+        normals[i*6+5] = 0;
+    }
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, sides);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 361*2);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 - (UIImage *) drawObjects: (UIImage *) image :(int*) isFound{
     GLfloat near = 1.0f, far = 1000.0f;
     
-    glClearDepthf( 1.0f );
+    //glClearDepthf( 1.0f );
     glEnable( GL_DEPTH_TEST );
+    glEnable(GL_CULL_FACE);
     *isFound = 0;
     //set the viewport
     
@@ -806,10 +872,49 @@ void drawAxes(float length)
             
             //load in our transformed matrix
             glMatrixMode(GL_MODELVIEW);
+            glEnable(GL_LIGHTING);
+            glEnable(GL_LIGHT0);
+            glEnable(GL_COLOR_MATERIAL);
+//            // Enable lighting
+//            glEnable(GL_LIGHTING);
+//            
+//            // Turn the first light on
+//            glEnable(GL_LIGHT0);
+//            
+//            // Define the ambient component of the first light
+//            const GLfloat light0Ambient[] = {0.1, 0.1, 0.1, 1.0};
+//            glLightfv(GL_LIGHT0, GL_AMBIENT, light0Ambient);
+//            
+//            // Define the diffuse component of the first light
+//            const GLfloat light0Diffuse[] = {0.7, 0.7, 0.7, 1.0};
+//            glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Diffuse);
+//            
+//            // Define the specular component and shininess of the first light
+//            const GLfloat light0Specular[] = {0.7, 0.7, 0.7, 1.0};
+//            const GLfloat light0Shininess = 0.4;
+//            glLightfv(GL_LIGHT0, GL_SPECULAR, light0Specular);
+//            
+//            
+//            // Define the position of the first light
+//            const GLfloat light0Position[] = {0.0, 10.0, 10.0, 0.0};
+//            glLightfv(GL_LIGHT0, GL_POSITION, light0Position);
+//            
+//            // Define a direction vector for the light, this one points right down the Z axis
+//            const GLfloat light0Direction[] = {0.0, 0.0, -1.0};
+//            glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light0Direction);
+//            
+//            // Define a cutoff angle. This defines a 90° field of vision, since the cutoff
+//            // is number of degrees to each side of an imaginary line drawn from the light's
+//            // position along the vector supplied in GL_SPOT_DIRECTION above
+//            glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 45.0);
+//            glEnable(GL_COLOR_MATERIAL);
             glLoadIdentity();
             glPushMatrix();
             
             [calibrator loadMatrix];
+            
+            GLfloat lightPos[] = {2.5, 3.5, -2, 1};
+            glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
             
             for(int i = 0; i < grayPieces.size(); i++) {
                 [self drawCheckerPiece :grayPieces.at(i)];
@@ -821,6 +926,7 @@ void drawAxes(float length)
             if ([self suggestMove] && !inContinuousJump) {
                 GLfloat z = 0.0f;
                 for(z = 0.0f; z > -0.5f; z-=0.01f) {
+                    
                     GLfloat vertices[] = {(GLfloat)suggestPieceX - 0.5f, (GLfloat)suggestPieceY - 0.5f, z, (GLfloat)suggestMoveX - 0.5f, (GLfloat)suggestMoveY - 0.5f, z};
                     GLfloat slopeY = (GLfloat)(suggestPieceY - suggestMoveY);
                     GLfloat slopeX = (GLfloat)(suggestPieceX - suggestMoveX);
@@ -835,16 +941,16 @@ void drawAxes(float length)
                         arrow[4] = (GLfloat)suggestMoveY - 0.0f;
                         arrow[6] = (GLfloat)suggestMoveX - 0.0f;
                         arrow[7] = (GLfloat)suggestMoveY - 0.5f;
-                    } else if (slopeX > 0.0f && slopeY < 0.0f) {
-                        arrow[3] = (GLfloat)suggestMoveX - 0.5f;
-                        arrow[4] = (GLfloat)suggestMoveY - 1.0f;
-                        arrow[6] = (GLfloat)suggestMoveX - 0.0f;
-                        arrow[7] = (GLfloat)suggestMoveY - 0.5f;
                     } else if (slopeX < 0.0f && slopeY > 0.0f) {
                         arrow[3] = (GLfloat)suggestMoveX - 1.0f;
                         arrow[4] = (GLfloat)suggestMoveY - 0.5f;
                         arrow[6] = (GLfloat)suggestMoveX - 0.5f;
                         arrow[7] = (GLfloat)suggestMoveY - 0.0f;
+                    } else if (slopeX > 0.0f && slopeY < 0.0f) {
+                        arrow[3] = (GLfloat)suggestMoveX - 0.0f;
+                        arrow[4] = (GLfloat)suggestMoveY - 0.5f;
+                        arrow[6] = (GLfloat)suggestMoveX - 0.5f;
+                        arrow[7] = (GLfloat)suggestMoveY - 1.0f;
                     } else {
                         arrow[3] = (GLfloat)suggestMoveX - 0.5f;
                         arrow[4] = (GLfloat)suggestMoveY - 1.0f;
