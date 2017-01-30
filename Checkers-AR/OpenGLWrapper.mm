@@ -856,6 +856,7 @@ void drawAxes(float length)
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
+
 - (UIImage *) drawObjects: (UIImage *) image :(int*) isFound{
     GLfloat near = 1.0f, far = 1000.0f;
     
