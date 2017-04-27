@@ -9,4 +9,5 @@ Upon running the application, the user has to first calibrate their camera to th
 After calibration, the user can tap on the screen of the device to select pieces, and tap again on a valid spot on the game board to move them. Possible moves will be shown by an arrow on the game board to hint the user where they can place their next move.
 
 Project Demo: https://drive.google.com/file/d/0B7KK9jH69rn2M1ZwcHhVNjN1b2M/view?usp=sharing
+
 Project Writeup: https://drive.google.com/file/d/0B_weDCNmYc81WWpEaEQxcVc3RXc/view?usp=sharing
